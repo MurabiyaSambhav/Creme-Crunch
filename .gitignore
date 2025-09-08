@@ -12,3 +12,7 @@ db.sqlite3
 # IDE
 .vscode/
 .idea/
+
+venv/
+__pycache__/
+*.pyc
