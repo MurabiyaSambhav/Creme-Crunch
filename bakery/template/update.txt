@@ -5,3 +5,4 @@ git push origin main --force
 venv\scripts\activate
 
 
+asadasdasd
