@@ -1,18 +1,7 @@
-git add .
-git commit -m "Initial commit"
-git push origin main --force
+git checkout main
+git pull origin main
+git checkout 1  
+git merge main
+
 
 venv\scripts\activate
-
-
-asadasdasd
-dsfdsfsd
-sdfs
-
-sdfsfs
-dsfdsfsdsdf
-scriptsdf
-sdfssdf
-scriptsdfs
-forcesf
-sdfssdf
