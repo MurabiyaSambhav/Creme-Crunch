@@ -8,6 +8,3 @@ venv\scripts\activate
 asadasdasd
 dsfdsfsd
 sdfs
-dsfdsfsddf
-sdfssd
-f
