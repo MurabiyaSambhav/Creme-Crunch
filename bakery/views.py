@@ -1,4 +1,4 @@
 from django.http import HttpResponse
 
 def home(request):
-    return HttpResponse("Hello, Djangoooooooooooooooo    11231321!")
+    return HttpResponse("Hello, Django!")
