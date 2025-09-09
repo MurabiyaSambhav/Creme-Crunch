@@ -5,8 +5,3 @@ git push origin main --force
 venv\scripts\activate
 
 
-sdfsdfsf
-sdfsdfsffs
-dfs
-dfsfdsdfsdf
-dsidfsdnfksjndfk
