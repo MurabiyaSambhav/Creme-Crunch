@@ -14,14 +14,19 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/header.css' %}">
+  <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+
+  
 </head>
 <body class="bg-white">
 
   {% include "header.html" %}
 
+
   <main class="p-6">
     {% block content %}{% endblock %}
   </main>
+  {% include "footer.html" %}
 
   <script>
     lucide.createIcons();
