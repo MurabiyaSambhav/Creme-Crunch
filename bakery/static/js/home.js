@@ -1,4 +1,3 @@
-
 const slides = document.getElementById('slides');
 const dotsContainer = document.getElementById('dots');
 const totalSlides = slides.children.length;
