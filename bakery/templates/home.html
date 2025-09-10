@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Full Width Sidebar Slider</title>
+    <style>
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .slider {
+            position: relative;
+            width: 100%;
+            height: 700px;
+            overflow: hidden;
+        }
+        .slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .slide {
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+        .slide img {
+            width: 100%;
+            height: 700px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+           
+            color: black;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 25px;
+        }
+        
+        
+        .prev {
+            left: 10px;
+        }
+        .next {
+            right: 10px;
+        }
+        .dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: #bbb;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .dot.active {
+            background-color: #717171;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+
+        <!-- Changed from "Products" to "Slider" -->
+        <div class="slider" id="slider">
+            <div class="slides" id="slides">
+                <div class="slide"><img src="{% static 'slider/slider1.jpg' %}" alt="Product 1"></div>
+                <div class="slide"><img src="{% static 'slider/slider2.jpg' %}" alt="Product 2"></div>
+                <div class="slide"><img src="{% static 'slider/slider3.jpg' %}" alt="Product 3"></div>
+                <div class="slide"><img src="{% static 'slider/slider4.jpg' %}" alt="Product 4"></div>
+                <div class="slide"><img src="{% static 'slider/slider5.jpg' %}" alt="Product 5"></div>
+            </div>
+            <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+            <button class="next" onclick="changeSlide(1)">&#10095;</button>
+            <div class="dots" id="dots"></div>
+        </div>
+ 
+<script>
+const slides = document.getElementById('slides');
+const dotsContainer = document.getElementById('dots');
+const totalSlides = slides.children.length;
+let currentIndex = 0;
+let slideInterval;
+
+// Clone first slide and append at the end for smooth looping
+const firstClone = slides.children[0].cloneNode(true);
+slides.appendChild(firstClone);
+
+const dots = [];
+
+// Create dots dynamically
+for (let i = 0; i < totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.classList.add('dot');
+    dot.addEventListener('click', () => goToSlide(i));
+    dotsContainer.appendChild(dot);
+    dots.push(dot);
+}
+
+function updateSlides() {
+    slides.style.transition = 'transform 0.5s ease-in-out';
+    slides.style.transform = `translateX(${-currentIndex * 100}%)`;
+    dots.forEach(dot => dot.classList.remove('active'));
+    // Highlight dot; loop back to first dot if at cloned slide
+    dots[currentIndex % totalSlides].classList.add('active');
+}
+
+// Next / Previous Slide
+function changeSlide(direction = 1) {
+    currentIndex += direction;
+    updateSlides();
+
+    // If we've reached the clone (after last slide), reset to real first slide
+    if (currentIndex > totalSlides - 1) {
+        setTimeout(() => {
+            slides.style.transition = 'none'; // remove transition for instant jump
+            currentIndex = 0;
+            slides.style.transform = `translateX(${-currentIndex * 100}%)`;
+        }, 500); // duration should match CSS transition
+    }
+
+    resetInterval();
+}
+
+// Go to slide via dot
+function goToSlide(index) {
+    currentIndex = index;
+    updateSlides();
+    resetInterval();
+}
+
+// Auto slide
+function resetInterval() {
+    clearInterval(slideInterval);
+    slideInterval = setInterval(() => changeSlide(1), 5000);
+}
+
+// Initialize
+updateSlides();
+slideInterval = setInterval(() => changeSlide(1), 5000);
+</script>
+
+
+</body>
+</html>
