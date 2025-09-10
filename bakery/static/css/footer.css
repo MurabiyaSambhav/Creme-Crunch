@@ -1,0 +1,71 @@
+/* Footer */
+.site-footer {
+    width: 100%;
+    background: linear-gradient(90deg, #0f172a, #1e293b);
+    color: #f1f5f9;
+    margin-top: 40px;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.footer-logo {
+    width: 60px;
+    height: 60px;
+}
+
+.footer-company {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #facc15;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.footer-menu {
+    display: flex;
+    gap: 24px;
+    font-size: 1rem;
+}
+
+.footer-menu a {
+    color: #f1f5f9;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-menu a:hover {
+    color: #facc15;
+}
+
+.footer-social {
+    display: flex;
+    gap: 16px;
+}
+
+.footer-social a {
+    color: #facc15;
+    font-size: 1.25rem;
+    transition: color 0.3s, transform 0.2s;
+}
+
+.footer-social a:hover {
+    color: #fde047;
+    transform: scale(1.1);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding: 12px;
+    background: #0a0f1d;
+    font-size: 0.875rem;
+    color: #cbd5e1;
+}
