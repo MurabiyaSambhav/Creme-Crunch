@@ -8,4 +8,3 @@ def home(request):
 def user_logout(request):
     logout(request)
     return redirect('home')
-# hrhidfhi
