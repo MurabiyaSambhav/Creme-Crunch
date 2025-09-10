@@ -1,5 +1,10 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+
+from django.contrib.auth import logout
+from django.shortcuts import redirect,render
 
 def home(request):
-    return render(request ,'home.html')
+    return render(request, "base.html")
+
+def user_logout(request):
+    logout(request)
+    return redirect('home')

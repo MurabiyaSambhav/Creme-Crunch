@@ -1,0 +1,131 @@
+/* Header Background */
+.site-header {
+    width: 100%;
+    background: rgb(240, 234, 222);
+    /* Dark slate gradient */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Flex container */
+.header-container {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo + Company Name */
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 10px;
+}
+
+.logo-img {
+    height: 80px;
+    width: 80px;
+}
+
+.company-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ccaf5e;
+    /* Yellow */
+}
+
+/* Navigation Menu */
+.nav-menu {
+    display: flex;
+    gap: 32px;
+    font-size: 1em;
+    color: black;
+}
+
+.nav-menu a {
+    color: #000000;
+    /* Light text */
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.nav-menu a:hover {
+    color: #facc15;
+}
+
+/* Cart + Login Section */
+.cart-login {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Cart Button */
+.cart {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(90deg, #facc15, #eab308);
+    color: #1e293b;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.cart:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #fde047, #ca8a04);
+}
+
+.cart i {
+    color: #1e293b;
+}
+/* Buttons */
+.btn {
+    display: flex;
+    align-items: center;
+    gap: px;
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* Logout button standout */
+.btn-logout {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+    /* Red gradient */
+    color: white;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    margin-right: 20px;
+}
+
+.btn-logout:hover {
+    background: linear-gradient(90deg, #f87171, #b91c1c);
+    transform: scale(1.05);
+}
+
+/* Login button */
+.btn-login {
+    background: #facc15;
+    color: #1e293b;
+    margin-left: 10px;
+}
+
+.btn-login:hover {
+    background: #eab308;
+    margin-left: 10px;
+    transform: scale(1.05);
+    margin-left: 10px;
+}
+
+/* Main content spacing */
+.main-content {
+    padding: 24px;
+}
+
+/* #test checjin */
