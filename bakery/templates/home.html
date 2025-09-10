@@ -1,204 +1,28 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Full Width Sidebar Slider</title>
-    <style>
-        body {
-            display: flex;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-        .slider {
-            position: relative;
-            width: 100%;
-            height: 700px;
-            overflow: hidden;
-        }
-        .slides {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-        }
-        .slide {
-            min-width: 100%;
-            box-sizing: border-box;
-        }
-        .slide img {
-            width: 100%;
-            height: 700px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
-        .prev, .next {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: transparent; 
-            color: black;
-            border: none;
-            padding: 8px;
-            cursor: pointer;
-            border-radius: 0;
-            font-size: 25px;
-        }
-        
-        
-        .prev {
-            left: 10px;
-        }
-        .next {
-            right: 10px;
-        }
-        .dots {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 5px;
-        }
-        .dot {
-            width: 10px;
-            height: 10px;
-            background-color: #bbb;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        .dot.active {
-            background-color: #717171;
-        }
-        .main-content {
-            flex: 1;
-            padding: 20px;
-        }
-        h2  {
-        font-family: 'Arial', sans-serif;
-        font-size: 28px;
-        font-weight: bold; 
-        color: #c47916ff;
-        text-align: center;
-        margin: 20px 0;
-        position: relative;
-        }
-        h2::after {
-        content: '';
-        display: block;
-        width: 50px;
-        height: 3px;
-        background-color: #474645ff;
-        margin: 12px auto 0;
-        border-radius: 2px;
-    }
 
+{% block title %}
+Home - Creme & Crunch
+{% endblock %}
 
-    
-        
-    </style>
-</head>
-<body>
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 
-
-        <!-- Changed from "Products" to "Slider" -->
-    <div>
-        <div class="slider" id="slider">
-            <div class="slides" id="slides">
-                <div class="slide"><img src="{% static 'image/slider/slider1.jpg' %}" alt="Product 1"></div>
-                <div class="slide"><img src="{% static 'image/slider/slider3.jpg' %}" alt="Product 3"></div>
-                <div class="slide"><img src="{% static 'image/slider/slider4.jpg' %}" alt="Product 4"></div>
-                <div class="slide"><img src="{% static 'image/slider/slider5.jpg' %}" alt="Product 5"></div>
-                <div class="slide"><img src="{% static 'image/slider/slider2.jpg' %}" alt="Product 2"></div>
-            </div>
-            <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
-            <button class="next" onclick="changeSlide(1)">&#10095;</button>
-            <div class="dots" id="dots"></div>
+<div class="slider-container w-full">
+    <div class="slider" id="slider">
+        <div class="slides" id="slides">
+            <div class="slide"><img src="{% static 'image/slider/slider1.jpg' %}" alt="Product 1"></div>
+            <div class="slide"><img src="{% static 'image/slider/slider3.jpg' %}" alt="Product 3"></div>
+            <div class="slide"><img src="{% static 'image/slider/slider4.jpg' %}" alt="Product 4"></div>
+            <div class="slide"><img src="{% static 'image/slider/slider5.jpg' %}" alt="Product 5"></div>
+            <div class="slide"><img src="{% static 'image/slider/slider2.jpg' %}" alt="Product 2"></div>
         </div>
-        <h2>Explore the Best Products</h2>
+        <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+        <button class="next" onclick="changeSlide(1)">&#10095;</button>
+        <div class="dots" id="dots"></div>
     </div>
-    
- 
-<script>
-const slides = document.getElementById('slides');
-const dotsContainer = document.getElementById('dots');
-const totalSlides = slides.children.length;
-let currentIndex = 1; 
-let slideInterval;
+    <h2>Explore the Best Products</h2>
+</div>
+  <script src="{% static 'js/home.js' %}"></script>
 
-
-const firstClone = slides.children[0].cloneNode(true);
-const lastClone = slides.children[totalSlides - 1].cloneNode(true);
-
-// Append first clone at the end
-slides.appendChild(firstClone);
-// Insert last clone at the beginning
-slides.insertBefore(lastClone, slides.firstChild);
-
-// Adjust slides container to show the first real slide
-slides.style.transform = `translateX(${-currentIndex * 100}%)`;
-
-const dots = [];
-
-// Create dots dynamically
-for (let i = 0; i < totalSlides; i++) {
-    const dot = document.createElement('div');
-    dot.classList.add('dot');
-    dot.addEventListener('click', () => goToSlide(i + 1)); // offset by 1 due to clone
-    dotsContainer.appendChild(dot);
-    dots.push(dot);
-}
-
-function updateSlides() {
-    slides.style.transition = 'transform 0.5s ease-in-out';
-    slides.style.transform = `translateX(${-currentIndex * 100}%)`;
-    dots.forEach(dot => dot.classList.remove('active'));
-    // Adjust currentIndex to match real slides for dot highlighting
-    let realIndex = currentIndex - 1;
-    if (realIndex < 0) realIndex = totalSlides - 1;
-    if (realIndex >= totalSlides) realIndex = 0;
-    dots[realIndex].classList.add('active');
-}
-
-function changeSlide(direction = 1) {
-    currentIndex += direction;
-    updateSlides();
-
-    // If we've reached the clone at the end, jump to the real first slide
-    if (currentIndex === totalSlides + 1) { // after last real slide
-        setTimeout(() => {
-            slides.style.transition = 'none';
-            currentIndex = 1;
-            slides.style.transform = `translateX(${-currentIndex * 100}%)`;
-        }, 500);
-    }
-
-    // If we've reached the clone at the beginning, jump to the real last slide
-    if (currentIndex === 0) { // before first real slide
-        setTimeout(() => {
-            slides.style.transition = 'none';
-            currentIndex = totalSlides;
-            slides.style.transform = `translateX(${-currentIndex * 100}%)`;
-        }, 500);
-    }
-
-    resetInterval();
-}
-
-function goToSlide(index) {
-    currentIndex = index;
-    updateSlides();
-    resetInterval();
-}
-
-function resetInterval() {
-    clearInterval(slideInterval);
-    slideInterval = setInterval(() => changeSlide(1), 5000);
-}
-
-// Initialize
-updateSlides();
-slideInterval = setInterval(() => changeSlide(1), 5000);
-</script>
-
-
-
-</body>
-</html>
+{% endblock %}

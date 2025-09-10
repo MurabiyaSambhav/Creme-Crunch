@@ -6,21 +6,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Creme & Crunch{% endblock %}</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/header.css' %}">
+  
 </head>
-<body class="bg-white">
+<body class="bg-white m-0 p-0">
 
+  <!-- Header -->
   {% include "header.html" %}
 
-  <main class="p-6">
-    {% block content %}{% endblock %}
+  <!-- Main Content -->
+  <main class="p-0">
+    {% block content %}
+    {% endblock %}
   </main>
 
   <script>
