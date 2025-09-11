@@ -16,7 +16,6 @@
       <a href="#">Contact</a>
     </nav>
     
-
     <!-- Cart + Login -->
     <div class="cart-login">
       <div class="cart">
@@ -29,7 +28,7 @@
           <span>Logout</span>
         </a>
       {% else %}
-        <a href="{% url 'login' %}" class="btn btn-login">
+        <a href="javascript:void(0);" onclick="openModal('login')" class="btn btn-login">
           <i data-lucide="log-in"></i>
           <span>Login</span>
         </a>
