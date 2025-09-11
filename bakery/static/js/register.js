@@ -2,11 +2,11 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Register Form
     const registerForm = document.getElementById("registerFormInner");
     if (registerForm) {
         registerForm.addEventListener("submit", function (e) {
-            e.preventDefault();
+            e.preventDefault(); // Prevent default form submission
+
             const formData = new FormData(registerForm);
 
             fetch("/register/", {
@@ -26,7 +26,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert(data.message);
                     if (data.success) {
                         registerForm.reset();
-                        switchForm('login');
+                        // Optional: switch to login form if you have a SPA setup
+                        if (typeof switchForm === "function") {
+                            switchForm('login');
+                        }
                     }
                 })
                 .catch(err => console.error("Register Error:", err));

@@ -21,7 +21,15 @@ Home - Creme & Crunch
         <button class="next" onclick="changeSlide(1)">&#10095;</button>
         <div class="dots" id="dots"></div>
     </div>
-    <h2>Explore the Best Products</h2>
+   <h2>Explore the Best Products</h2>
+ {% load socialaccount %}
+
+<a href="{% provider_login_url 'google' %}"
+   class="bg-red-600 text-white px-4 py-2 rounded">
+   Sign in with Google
+</a>
+
+
 </div>
   <script src="{% static 'js/home.js' %}"></script>
 

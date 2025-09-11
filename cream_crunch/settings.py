@@ -13,6 +13,15 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 
+
+import django
+if django.VERSION < (3, 1):
+    from django.db.models import JSONField
+else:
+    from django.db.models import JSONField
+
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,6 +37,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+WSGI_APPLICATION = 'cream_crunch.wsgi.application'
+
 
 # Application definition
 
@@ -39,7 +50,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bakery',
+
+    # default Django apps...
+    'django.contrib.sites',
+
+    # allauth apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -103,6 +125,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'bakery.CustomUser'
 
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # default
+    'allauth.account.auth_backends.AuthenticationBackend',  # allauth
+]
+
+LOGIN_REDIRECT_URL = '/'   # where users go after login
+LOGOUT_REDIRECT_URL = '/'  # where users go after logout
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -116,6 +148,19 @@ USE_L10N = True
 
 USE_TZ = True
 
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'APP': {
+            'client_id': 'YOUR_CLIENT_ID_HERE',
+            'secret': 'YOUR_CLIENT_SECRET_HERE',
+            'key': ''
+        }
+    }
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -130,3 +175,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'sambhavmurabiya@gmail.com'       # your Gmail
+EMAIL_HOST_PASSWORD = '123'     # App password, NOT your main password
