@@ -1,7 +1,20 @@
 from django.db import models
-
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+
+<<<<<<< Updated upstream
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+=======
+class CustomUser(AbstractUser):
+    phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.username
+
+
+>>>>>>> Stashed changes
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
