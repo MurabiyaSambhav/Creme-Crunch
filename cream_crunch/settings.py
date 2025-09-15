@@ -20,8 +20,6 @@ if django.VERSION < (3, 1):
 else:
     from django.db.models import JSONField
 
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,7 +36,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 WSGI_APPLICATION = 'cream_crunch.wsgi.application'
-
 
 # Application definition
 
@@ -92,6 +89,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'cream_crunch.wsgi.application'
+# settings.py
+ZEROBOUNCE_API_KEY = "807c9108ede34ee897d8ce15ca92f109"
 
 
 # Database
