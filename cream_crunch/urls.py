@@ -22,7 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('bakery.urls')),
     path('accounts/', include('django.contrib.auth.urls')),  
-    path('accounts/', include('allauth.urls')),  # Google login routes
     # New line added for authentication URLs
 ]
 if settings.DEBUG:

@@ -1,29 +1,32 @@
-from django.shortcuts import render
+
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 from .utils.zerobounce import verify_email_with_zerobounce
+from django.conf import settings
+from django.shortcuts import render, redirect
+from .models import Category, Product, Weight
+
 
 CustomUser = get_user_model()
 
-
 def base(request):
     return render(request, "base.html")
-from django.conf import settings
-
-
-def base(request):
-    return render(request,'base.html')
-from django.conf import settings
-
-
-def base(request):
-    return render(request,'base.html')
 
 def home(request):
     return render(request, "home.html")
 
+def user_logout(request):
+    logout(request)
+    return redirect('base')
+
+
+def about_as(request):
+    return render(request,'about_as.html')
+
+def our_products(request):
+    return render(request,'our_products.html')
 
 def register(request):
     if request.method != "POST":
@@ -35,12 +38,14 @@ def register(request):
     phone = request.POST.get("phone", "").strip()
     address = request.POST.get("address", "").strip()
 
-    #  Gmail-only
-    if not email.endswith("@gmail.com"):
-        return JsonResponse({"success": False, "message": "Please enter a Gmail address"})
-
+    print("Registering email:", email)
     #  ZeroBounce validation
+    import json
+
     result = verify_email_with_zerobounce(email)
+    if isinstance(result, str):
+        result = json.loads(result)
+
     if not result or result.get("status") != "valid":
         return JsonResponse({"success": False, "message": "Invalid email. Please enter a real Gmail address."})
 
@@ -69,7 +74,6 @@ def register(request):
         "message": "Registration successful! Please login."
     })
 
-
 @csrf_exempt
 def login(request):
     if request.method == "POST":
@@ -89,23 +93,10 @@ def login(request):
 
     return JsonResponse({"success": False, "message": "Invalid request"})
 
-
 @csrf_exempt
 def logout(request):
     auth_logout(request)
     return JsonResponse({"success": True, "message": "Logged out successfully"})
-
-def user_logout(request):
-    logout(request)
-    return redirect('base')
-
-def about_as(request):
-    return render(request,'about_as.html')
-
-def our_products(request):
-    return render(request,'our_products.html')
-from django.shortcuts import render, redirect
-from .models import Category, Product, Weight
 
 def add_product(request):
     if request.method == 'POST':
@@ -138,12 +129,6 @@ def add_product(request):
     else:
         categories = Category.objects.values('name')
         return render(request, 'add_product.html', {'categories': categories})
-# def our_products(request):
-#     products = Product.objects.values('image','name','price')
-#     return render(request, 'our_products.html', {'products': products, 'MEDIA_URL': settings.MEDIA_URL})
-from django.conf import settings
-from django.shortcuts import render
-from .models import Product, Category
 
 def our_products(request):
     category_id = request.GET.get('category')  # get from URL query param
