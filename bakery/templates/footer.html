@@ -1,26 +1,52 @@
+
 {% load static %}
 <footer class="site-footer">
   <div class="footer-container">
 
-    <!-- Left: Logo + Name -->
+    <!-- Left: Logo + Description -->
     <div class="footer-brand">
       <img src="{% static 'image/Name.png' %}" alt="Creme & Crunch Logo" class="footer-logo" />
       <h2 class="footer-company">Creme & Crunch</h2>
+      <p>Delivering Incredible Taste since 1960!<br>
+      The very first commercial bakery shop of Ahmedabad.<br> With a portfolio of 150+ products baked to
+       <br>perfection with years of experience and expertise.</p>
+      {% comment %} <div class="footer-social">
+        <a href="#"><i data-lucide="facebook"></i></a>
+        <a href="#"><i data-lucide="instagram"></i></a>
+      </div> {% endcomment %}
     </div>
 
-    <!-- Center: Navigation -->
-    <nav class="footer-menu">
-      <a href="{% url 'home' %}">Home</a>
-      <a href="#">All Products</a>
-      <a href="#">About Us</a>
-      <a href="#">Contact</a>
-    </nav>
+    <!-- Quick Links -->
+    <div class="footer-links quick-links">
+      <h3>Quick Links</h3>
+      <nav class="footer-menu">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="#">About Us</a>
+        <a href="#">Shop</a>
+        <a href="#">Contact</a>
+      </nav>
+    </div>
 
-    <!-- Right: Social Icons -->
-    <div class="footer-social">
-      <a href="#"><i data-lucide="facebook"></i></a>
-      <a href="#"><i data-lucide="instagram"></i></a>
-      <a href="#"><i data-lucide="twitter"></i></a>
+    <!-- Policies -->
+    <div class="footer-links policies-links">
+      <h3>Policies</h3>
+      <nav class="footer-menu">
+        <a href="#">Terms & Conditions</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Refund Policy</a>
+        <a href="#">Shipping Policy</a>
+      </nav>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="footer-contact">
+      <h3>Contact Info</h3>
+      <p><i data-lucide="phone"></i> +(079) 2640 5956</p>
+      <p><i data-lucide="smartphone"></i> +91 63596 45956</p>
+      <p><i data-lucide="mail"></i> <a href="mailto:info.bharatkrishna@gmail.com">info.bharatkrishna@gmail.com</a></p>
+      <p><i data-lucide="map-pin"></i> Shop No. 3, Ashoka Complex, Ground Floor,<br>
+      Sardar Patel Stadium Rd, Near Saviour Hospital,<br>
+      Navrangpura GUJARAT, India - 380014</p>
     </div>
 
   </div>

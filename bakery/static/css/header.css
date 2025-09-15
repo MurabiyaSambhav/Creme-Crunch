@@ -1,109 +1,108 @@
-Header Background */
+
 .site-header {
     width: 100%;
-    background: rgb(240, 234, 222);
+    background: #f8f5f0;
+    position: relative;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* Flex container */
 .header-container {
-    margin: 0;
+    max-width: 1700px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 10px 20px;
 }
 
-/* Logo + Company Name */
 .logo-section {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-left: 10px;
+    gap: 10px;
 }
 
 .logo-img {
-    margin-left: 50px;
-    height: 120px;
-    width: 120px;
+    height: 140px;
+    width: 140px;
+    object-fit: cover;
 }
 
 .company-name {
     font-size: 1.75rem;
     font-weight: 700;
     color: #ccaf5e;
-    /* Yellow */
+    white-space: nowrap;
 }
 
-/* Navigation Menu */
 .nav-menu {
     display: flex;
     gap: 32px;
-    font-size: 1.1em;
+    font-size: 1.2rem;
     font-weight: 500;
-    color: rgb(29, 29, 29);
 }
 
 .nav-menu a {
-    color: #000000;
-    
-    /* Light text */
+    color: #2c2b2b;
     text-decoration: none;
     transition: color 0.3s;
 }
 
-
 .nav-menu a:hover {
-    color: #facc15;
+    color: #8a5749;
 }
 
-/* Cart + Login Section */
 .cart-login {
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
-/* Cart Button */
 .cart {
     display: flex;
     align-items: center;
-    gap: 5px;
-    background: linear-gradient(90deg, #facc15, #eab308);
+    gap: 6px;
+    background: linear-gradient(90deg, #f5cb24, #fcd34d);
     color: #1e293b;
-    padding: 8px 16px;
+    padding: 8px 12px;
     border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s ease, background 0.3s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s, background 0.3s;
 }
 
 .cart:hover {
     transform: scale(1.05);
-    background: linear-gradient(90deg, #cfaf0f, #ca8a04);
+    background: linear-gradient(90deg, #fcd34d, #fbbf24);
 }
 
-.cart i {
-    color: #1e293b;
-}
-/* Buttons */
 .btn {
     display: flex;
     align-items: center;
-    gap: px;
-    padding: 8px 18px;
+    gap: 6px;
+    padding: 8px 16px;
     border-radius: 10px;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
-/* Logout button standout */
+.btn-login {
+    background: #facc15;
+    color: #1e293b;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+.btn-login:hover {
+    background: #eab308;
+    transform: scale(1.05);
+}
+
 .btn-logout {
     background: linear-gradient(90deg, #ef4444, #dc2626);
-    /* Red gradient */
-    color: white;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-    margin-right: 200px;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
 .btn-logout:hover {
@@ -111,23 +110,148 @@ Header Background */
     transform: scale(1.05);
 }
 
-/* Login button */
-.btn-login {
-    background: #facc15;
-    color: #1e293b;
-    margin-left: 10px;
+.menu-toggle {
+    display: none;
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
-.btn-login:hover {
-    background: #eab308;
-    margin-left: 10px;
-    transform: scale(1.05);
-    margin-left: 10px;
+.mobile-buttons {
+    display: none;
 }
 
-/* Main content spacing */
-.main-content {
-    padding: 24px;
+@media (max-width: 1024px) {
+    .nav-menu {
+        gap: 20px;
+        font-size: 1rem;
+    }
+
+    .logo-img {
+        height: 100px;
+        width: 100px;
+    }
+
+    .company-name {
+        font-size: 1.4rem;
+    }
 }
 
-/* #test checjin
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none; 
+        position: absolute;
+        top: 100%;
+        right: 10px;
+        background: #f8f5f0;
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 99;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .cart-login {
+        display: none; 
+    }
+
+    .mobile-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .mobile-buttons a {
+        padding: 8px 12px;
+        background: #f0940b;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-img {
+        height: 60px;
+        width: 60px;
+    }
+
+    .company-name {
+        font-size: 1rem;
+    }
+
+    .nav-menu a {
+        font-size: 0.95rem;
+    }
+}
+@media (max-width: 992px) {
+    .nav-menu {
+        display: none; 
+        position: absolute;
+        top: 100%;
+        right: 10px;
+        background: #f8f5f0;
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 99;
+    }
+
+    .nav-menu.active {
+        display: flex; 
+    }
+
+    .menu-toggle {
+        display: block; 
+    }
+
+    .cart-login {
+        display: none; 
+    }
+
+    .mobile-buttons {
+        display: flex; 
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .mobile-buttons a {
+        padding: 8px 12px;
+        background: #f0940b;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .nav-menu {
+        gap: 20px;
+        font-size: 1rem;
+    }
+    .header-container {
+      padding: 10px 15px;
+    }
+}
