@@ -36,8 +36,8 @@
         {% endif %}
       </div>
     </nav>
-
     
+    <!-- Cart + Login -->
     <div class="cart-login">
       <div class="cart">
         <i data-lucide="shopping-cart"></i>
@@ -48,8 +48,9 @@
           <i data-lucide="log-out"></i> Logout
         </a>
       {% else %}
-        <a href="{% url 'login' %}" class="btn btn-login">
-          <i data-lucide="log-in"></i> Login
+        <a href="javascript:void(0);" onclick="openModal('login')" class="btn btn-login">
+          <i data-lucide="log-in"></i>
+          <span>Login</span>
         </a>
       {% endif %}
     </div>

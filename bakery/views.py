@@ -1,18 +1,4 @@
-<<<<<<< Updated upstream
 
-from django.contrib.auth import logout
-from django.shortcuts import redirect,render
-from django.conf import settings
-
-
-def base(request):
-    return render(request,'base.html')
-from django.conf import settings
-
-
-def base(request):
-    return render(request,'base.html')
-=======
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.views.decorators.csrf import csrf_exempt
@@ -22,31 +8,25 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from .models import Category, Product, Weight
 
+
 CustomUser = get_user_model()
 
 def base(request):
     return render(request, "base.html")
->>>>>>> Stashed changes
 
 def home(request):
     return render(request, "home.html")
 
-<<<<<<< Updated upstream
 def user_logout(request):
     logout(request)
     return redirect('base')
 
-=======
->>>>>>> Stashed changes
+
 def about_as(request):
     return render(request,'about_as.html')
 
 def our_products(request):
     return render(request,'our_products.html')
-<<<<<<< Updated upstream
-from django.shortcuts import render, redirect
-from .models import Category, Product, Weight
-=======
 
 def register(request):
     if request.method != "POST":
@@ -117,7 +97,6 @@ def login(request):
 def logout(request):
     auth_logout(request)
     return JsonResponse({"success": True, "message": "Logged out successfully"})
->>>>>>> Stashed changes
 
 def add_product(request):
     if request.method == 'POST':
