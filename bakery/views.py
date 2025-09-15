@@ -46,7 +46,7 @@ def register(request):
     try:
         user = CustomUser.objects.create_user(
             username=username,
-            email=email,
+            email=email,    
             password=password,
             phone=phone,
             address=address
