@@ -1,23 +1,43 @@
+
 {% load static %}
+
 <header class="site-header">
   <div class="header-container">
 
-    <!-- Logo + Company Name -->
+
     <div class="logo-section">
       <img src="{% static 'image/Name.png' %}" alt="Creme & Crunch Logo" class="logo-img" />
       <h1 class="company-name">Creme & Crunch</h1>
     </div>
 
-    <!-- Navigation Menu -->
+
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+    
     <nav class="nav-menu">
       <a href="{% url 'home' %}">Home</a>
-      <a href="#">Our Products</a>
-      <a href="#">About Us</a>
+      <a href="{% url 'our_products' %}">Our Products</a>
+      <a href="{% url 'about' %}">About Us</a>
       <a href="#">Contact</a>
-    </nav>
-    
 
-    <!-- Cart + Login -->
+      
+      <div class="mobile-buttons">
+        <a href="#" class="btn-cart">
+          <i data-lucide="shopping-cart"></i> Cart ₹0.00
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}" class="btn-logout">
+          <i data-lucide="log-out"></i> Logout
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn-login">
+          <i data-lucide="log-in"></i> Login
+        </a>
+        {% endif %}
+      </div>
+    </nav>
+
+    
     <div class="cart-login">
       <div class="cart">
         <i data-lucide="shopping-cart"></i>
@@ -25,15 +45,21 @@
       </div>
       {% if user.is_authenticated %}
         <a href="{% url 'logout' %}" class="btn btn-logout">
-          <i data-lucide="log-out"></i>
-          <span>Logout</span>
+          <i data-lucide="log-out"></i> Logout
         </a>
       {% else %}
         <a href="{% url 'login' %}" class="btn btn-login">
-          <i data-lucide="log-in"></i>
-          <span>Login</span>
+          <i data-lucide="log-in"></i> Login
         </a>
       {% endif %}
     </div>
+
   </div>
 </header>
+
+<script>
+function toggleMenu() {
+    const menu = document.querySelector('.nav-menu');
+    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+}
+</script> 
