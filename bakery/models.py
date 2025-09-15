@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 class CustomUser(AbstractUser):
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
@@ -8,8 +10,6 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -21,8 +21,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     description = models.TextField()
-    image = models.ImageField(upload_to='product_images/')  
-
+    image = models.ImageField(upload_to='product_images/', default='product_images/default.jpg')
     
     def __str__(self):
         return self.name
