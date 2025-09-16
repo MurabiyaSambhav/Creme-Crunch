@@ -1,0 +1,19 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/admin_css/admin_home.css' %}">
+
+<header class="admin-header">
+  <nav class="admin-nav">
+    <p class="admin-title">Admin Panel</p>
+
+    <!-- Center menu -->
+    <ul class="admin-menu">
+      <li><a href="{% url 'add_product' %}">Add Product</a></li>
+      <li><a href="{% url 'all_payment' %}">All Payment</a></li>
+    </ul>
+
+    <!-- Right side Home button -->
+    <div class="home-button-container">
+      <a href="{% url 'home' %}" class="home-button">Home</a>
+    </div>
+  </nav>
+</header>

@@ -133,7 +133,7 @@ def login(request):
                     return JsonResponse({
                         "success": True,
                         "message": "Staff login successful",
-                        "redirect_url": "/admin_home/"
+                        "redirect_url": "templates/admin/admin_home/"
                     })
                 else:
                     return JsonResponse({
@@ -148,9 +148,10 @@ def login(request):
 
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
 
+
 def logout(request):
     auth_logout(request)
-    return JsonResponse({"success": True, "message": "Logged out successfully"})
+    return redirect("home")
 
 def add_product(request):
     if request.method == 'POST':
@@ -182,7 +183,7 @@ def add_product(request):
 
     else:
         categories = Category.objects.values('name')
-        return render(request, 'add_product.html', {'categories': categories})
+        return render(request, 'admin/add_product.html', {'categories': categories})
 
 def our_products(request):
     category_id = request.GET.get('category')  # get from URL query param
@@ -208,4 +209,7 @@ def our_products(request):
     return render(request,'our_products.html')
 
 def admin_home(request):
-    return render(request,'admin_home.html')
+    return render(request,'admin/admin_home.html')
+
+def all_payment(request):
+    return render(request,'admin/all_payment.html')
