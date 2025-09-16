@@ -1,14 +1,23 @@
 import requests
-from django.conf import settings
+import os
 
-def verify_email_with_zerobounce(email):
-    api_key = settings.ZEROBOUNCE_API_KEY
-    url = f"https://api.zerobounce.net/v2/validate?api_key={api_key}&email={email}"
+# Load API key from environment variable (recommended)
+API_KEY = os.getenv("ZEROBOUNCE_API_KEY", "94cfc438aed743c5ae079dafbfec2f8f")
 
+def verify_email_with_zerobounce(email, ip_address=""):
+    """
+    Validate email using ZeroBounce API.
+    Returns dict with either 'status' or 'error'.
+    """
+    url = "https://api.zerobounce.net/v2/validate"
+    params = {
+        "api_key": API_KEY,
+        "email": email,
+        "ip_address": ip_address or ""
+    }
     try:
-        response = requests.get(url, timeout=10)
-        data = response.json()
-        # Example response: { "status": "valid", "sub_status": "", ... }
-        return data
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
-        return {"status": "error", "error": str(e)}
+        return {"error": str(e)}

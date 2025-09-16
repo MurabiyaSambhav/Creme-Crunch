@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="csrf-token" content="{{ csrf_token }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Creme & Crunch{% endblock %}</title>
   <link rel="icon" href="{% static 'image/Name.png' %}" type="image/png">
@@ -25,30 +26,38 @@
 
   {% include "header.html" %}
 
-  <!-- Login/Register Modal -->
-  <div id="authModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md relative p-6">
-      <button onclick="closeModal()" class="absolute top-2 right-3 text-gray-600 hover:text-black">&times;</button>
+<!-- Login/Register Modal -->
+<div id="authModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md relative p-6">
+    <button onclick="closeModal()" class="absolute top-2 right-3 text-gray-600 hover:text-black">&times;</button>
 
-      <!-- Register Form -->
-      <div id="registerForm" class="hidden">
-        {% include "register.html" %}
-        <p class="text-sm mt-3">
-          Already have an account? 
-          <a href="javascript:void(0);" onclick="switchForm('login')" class="text-blue-600">Login here</a>
-        </p>
-      </div>
+    <!-- Register Form -->
+    <div id="registerForm" class="hidden">
+      <!--  Register Messages -->
+      <div id="registerMessage" class="mb-3"></div>
+      
+      {% include "register.html" %}
 
-      <!-- Login Form -->
-      <div id="loginForm" class="hidden">
-        {% include "login.html" %}
-        <p class="text-sm mt-3">
-          Don't have an account? 
-          <a href="javascript:void(0);" onclick="switchForm('register')" class="text-blue-600">Register here</a>
-        </p>
-      </div>
+      <p class="text-sm mt-3">
+        Already have an account? 
+        <a href="javascript:void(0);" onclick="switchForm('login')" class="text-blue-600">Login here</a>
+      </p>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="hidden">
+      <!--  Login Messages -->
+      <div id="loginMessage" class="mb-3"></div>
+
+      {% include "login.html" %}
+
+      <p class="text-sm mt-3">
+        Don't have an account? 
+        <a href="javascript:void(0);" onclick="switchForm('register')" class="text-blue-600">Register here</a>
+      </p>
     </div>
   </div>
+</div>
 
   <main class="p-0">{% block content %}{% endblock %}</main>
 
@@ -56,5 +65,6 @@
   
 <script>lucide.createIcons();</script>
 <script src="{% static 'js/base.js' %}"></script>
+<script src="{% static 'js/login.js' %}"></script>
 </body>
 </html>

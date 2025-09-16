@@ -1,4 +1,3 @@
-// Get CSRF token from cookie
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -15,9 +14,7 @@ function getCookie(name) {
 }
 const csrftoken = getCookie('csrftoken');
 
-
 //   Modal Functions
-   
         function openModal(form) {
             document.getElementById("authModal").classList.remove("hidden");
         switchForm(form);

@@ -21,8 +21,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('bakery.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),  
-    # New line added for authentication URLs
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
