@@ -210,3 +210,12 @@ def about_us(request):
         Contact_form.objects.create(name=name,email=email,phone=phone,message=message)
         return redirect('about_us.html')
     return render(request, 'about_us.html',{'error_massage': error_massage})
+
+def about_as(request):
+    return render(request,'about_as.html')
+
+def admin_home(request):
+    return render(request,'admin/admin_home.html')
+
+def all_payment(request):
+    return render(request,'admin/all_payment.html')
