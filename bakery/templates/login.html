@@ -1,5 +1,6 @@
-<form id="loginFormInner">
+<form id="loginFormInner" method="POST" action="{% url 'login' %}">
   {% csrf_token %}
+  <div id="login-error" style="color:red; margin-bottom:10px; "></div>
   <div class="mb-3">
     <input type="email" name="email" placeholder="Email" class="w-full border rounded px-3 py-2" required>
   </div>

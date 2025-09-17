@@ -1,0 +1,98 @@
+/* Header container */
+.admin-header {
+    background: #2c3e50;
+    padding: 15px 20px;
+    color: white;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Nav container */
+.admin-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    /* For responsiveness */
+}
+
+/* Title */
+.admin-title {
+    font-size: 2em;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    margin: 0;
+    flex: 1 1 100%;
+    text-align: center;
+}
+
+/* Menu in center */
+.admin-menu {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    margin: 10px 0;
+    padding: 0;
+    justify-content: center;
+    flex: 1 1 100%;
+}
+
+.admin-menu li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 15px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.admin-menu li a:hover {
+    background: #34495e;
+    border-radius: 5px;
+}
+
+/* Home button */
+.home-button-container {
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: center;
+    /* Default center for small screens */
+    margin-top: 10px;
+}
+
+.home-button {
+    text-decoration: none;
+    background: #e74c3c;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.home-button:hover {
+    background: #c0392b;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .admin-nav {
+        flex-wrap: nowrap;
+    }
+
+    .admin-title {
+        flex: 1;
+        text-align: left;
+    }
+
+    .admin-menu {
+        flex: 2;
+        justify-content: center;
+    }
+
+    .home-button-container {
+        flex: 1;
+        justify-content: flex-end;
+        margin-top: 0;
+    }
+}
