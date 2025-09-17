@@ -1,0 +1,72 @@
+
+ {% extends "base.html" %}
+ {% load static %}
+{% block title %}
+about-as - Creme & Crunch
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/contact.css' %}">
+
+<div class="about1">
+    <img src="{% static 'image/static_img/about.jpg' %}" alt="about_img">
+    <div class="about-text-overlay">CONTACT US</div>
+</div>
+
+<div class="contact-container">
+    <div class="address">
+        <h3><i data-lucide="map-pin"></i> OFFICE ADDRESS</h3>
+        <p>Salatvada, Malivada Road, Diwani Chowk,<br>Junagadh - 362001.</p>
+    </div>
+    <div class="phone_number">
+        <h3><i data-lucide="smartphone"></i> PHONE NUMBER</h3>
+        <p>+91 88492 34755</p>
+        <h3><i data-lucide="message-circle"></i> WHATSAPP NUMBER</h3>
+        <p>8140774709</p>
+    </div>
+    <div class="email_contact">
+        <h3><i data-lucide="mail"></i> EMAIL ADDRESS</h3>
+        <p>sambhavmurabiya@gmail.com</p>
+    </div>
+</div>
+
+  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    #map {
+      height: 400px;   
+      width: 100%;     
+    }
+  </style>
+
+  
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    // Replace with your latitude and longitude
+    const myLocation = [21.520437, 70.463623]; // Example: Mumbai
+
+    // Create map
+    const map = L.map('map').setView(myLocation, 13); // 13 = zoom level
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Add a marker
+    L.marker(myLocation).addTo(map)
+      .bindPopup('Here is my location!')
+      .openPopup();
+  </script>
+
+
+{% endblock %}

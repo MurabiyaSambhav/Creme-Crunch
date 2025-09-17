@@ -1,4 +1,3 @@
-
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.views.decorators.csrf import csrf_exempt
@@ -6,7 +5,9 @@ from django.db import IntegrityError
 from .utils.zerobounce import verify_email_with_zerobounce
 from django.conf import settings
 from django.shortcuts import render, redirect
-from .models import Category, Product, Weight
+from .models import Category, Product, Weight,Contact_form
+
+
 
 
 CustomUser = get_user_model()
@@ -17,13 +18,12 @@ def base(request):
 def home(request):
     return render(request, "home.html")
 
+def contact(request):
+    return render(request,'contact.html')
+
 def user_logout(request):
     logout(request)
     return redirect('base')
-
-
-def about_as(request):
-    return render(request,'about_as.html')
 
 def our_products(request):
     return render(request,'our_products.html')
@@ -104,44 +104,41 @@ def add_product(request):
         price = request.POST.get('price')
         category_id = request.POST.get('category')
         description = request.POST.get('description')
-        image = request.FILES.get('image')  # Get the uploaded image
+        image = request.FILES.get('image')  
         weights = request.POST.getlist('weights[]')
 
-        # Get or create category
         category, created = Category.objects.get_or_create(name=category_id)
 
-        # Create product with image
-        product = Product.objects.create(
-            name=name,
-            price=price,
-            category=category,
-            description=description,
-            image=image  
-        )
-
-        # Create weights
+        product = Product.objects.create(name=name,price=price,category=category,description=description,image=image  )
         for weight_value in weights:
             if weight_value.strip():
                 Weight.objects.create(product=product, weight_value=weight_value.strip())
-
-        return redirect('our_products')  # Redirect after successful submission
-
+        return redirect('our_products')  
     else:
         categories = Category.objects.values('name')
         return render(request, 'add_product.html', {'categories': categories})
 
 def our_products(request):
-    category_id = request.GET.get('category')  # get from URL query param
-    categories = Category.objects.values('id', 'name')  # as dictionaries
-
+    category_id = request.GET.get('category')  
+    categories = Category.objects.values('id', 'name')  
     if category_id:
         products = Product.objects.filter(category_id=category_id).values('image','name','price')
     else:
         products = Product.objects.values('image','name','price','category_id')
-
     return render(request, 'our_products.html', {
         'categories': categories,
         'products': products,
         'MEDIA_URL': settings.MEDIA_URL,
-        'selected_category': int(category_id) if category_id else None
-    })
+        'selected_category': int(category_id) if category_id else None})
+def about_us(request):
+    error_massage=""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone= request.POST.get('phone')
+        message = request.POST.get('message')
+        if len(message)>180:
+            error_massage="Message cannot exceed 180 characters."
+        Contact_form.objects.create(name=name,email=email,phone=phone,message=message)
+        return redirect('about_us.html')
+    return render(request, 'about_us.html',{'error_massage': error_massage})

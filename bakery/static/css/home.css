@@ -1,3 +1,4 @@
+/* Slider Container */
 .slider-container {
     width: 100%;
     overflow: hidden;
@@ -23,11 +24,14 @@
 }
 
 .slide img {
-    width: 100%;    
-    height: auto;   
+    width: auto;        /* Preserve natural width */
+    max-width: 100%;    /* Make it responsive */
+    height: auto;       /* Preserve aspect ratio */
     display: block;
+    object-fit: contain; /* Ensures image scales without cropping */
 }
 
+/* Navigation Arrows */
 .prev, .next {
     position: absolute;
     top: 50%;
@@ -48,6 +52,7 @@
     right: 20px;
 }
 
+/* Dots */
 .dots {
     position: absolute;
     bottom: 10px;
@@ -69,6 +74,7 @@
     background-color: #717171;
 }
 
+/* Headings */
 h2 {
     font-family: 'Arial', sans-serif;
     font-size: 28px;
@@ -89,87 +95,24 @@ h2::after {
     border-radius: 2px;
 }
 
+/* Optional: media queries only for text/controls, not images */
 @media (max-width: 1024px) {
-    .slider {
-        height: 600px;
-    }
-    .slide img {
-        height: 600px;
-    }
-    .prev, .next {
-        font-size: 22px;
-        padding: 6px;
-    }
-    .dots {
-        gap: 4px;
-    }
-    .dot {
-        width: 8px;
-        height: 8px;
-    }
-    h2 {
-        font-size: 24px;
-        margin: 18px 0;
-    }
-    h2::after {
-        width: 45px;
-        height: 3px;
-    }
+    .prev, .next { font-size: 22px; padding: 6px; }
+    .dot { width: 8px; height: 8px; }
+    h2 { font-size: 24px; margin: 18px 0; }
+    h2::after { width: 45px; }
 }
 
 @media (max-width: 768px) {
-    .slider {
-        height: 400px;
-    }
-    .slide img {
-        height: 400px;
-    }
-    .prev, .next {
-        font-size: 20px;
-        padding: 5px;
-    }
-    .dots {
-        gap: 4px;
-    }
-    .dot {
-        width: 8px;
-        height: 8px;
-    }
-    h2 {
-        font-size: 22px;
-        margin: 15px 0;
-    }
-    h2::after {
-        width: 40px;
-        height: 2px;
-    }
+    .prev, .next { font-size: 20px; padding: 5px; }
+    .dot { width: 8px; height: 8px; }
+    h2 { font-size: 22px; margin: 15px 0; }
+    h2::after { width: 40px; }
 }
 
 @media (max-width: 480px) {
-    .slider {
-        height: 250px;
-    }
-    .slide img {
-        height: 250px;
-    }
-    .prev, .next {
-        font-size: 18px;
-        padding: 4px;
-    }
-    .dots {
-        bottom: 8px;
-        gap: 3px;
-    }
-    .dot {
-        width: 6px;
-        height: 6px;
-    }
-    h2 {
-        font-size: 18px;
-        margin: 10px 0;
-    }
-    h2::after {
-        width: 30px;
-        height: 2px;
-    }
+    .prev, .next { font-size: 18px; padding: 4px; }
+    .dot { width: 6px; height: 6px; }
+    h2 { font-size: 18px; margin: 10px 0; }
+    h2::after { width: 30px; }
 }

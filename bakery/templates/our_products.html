@@ -2,7 +2,6 @@
 {% block title %}
 Our Products - Creme & Crunch
 {% endblock %}
-
 {% block content %}
 <h2>Our Products</h2>
 <div style="display: flex; gap: 20px;">
@@ -28,14 +27,11 @@ Our Products - Creme & Crunch
                 <div style="margin-bottom: 15px;">
                     <label style="cursor: pointer;">
                         <input type="radio" name="category" value="{{ category.id }}" onchange="this.form.submit()" {% if selected_category == category.id %}checked{% endif %} style="display: none;">
-                        <span style="
-                            display: inline-block;
-                            width: 18px;
-                            height: 18px;
-                            border-radius: 50%;
-                            background-color: {% if selected_category == category.id %}blue{% else %}#ccc{% endif %};
-                            vertical-align: middle;
-                            transition: background-color 0.3s;
+                        <span
+                       
+                           {% if selected_category == category.id %}blue{% else %}#ccc{% endif %};
+                            
+                        
                         "></span>
                         <span style="margin-left: 8px; vertical-align: middle;">{{ category.name }}</span>
                     </label>

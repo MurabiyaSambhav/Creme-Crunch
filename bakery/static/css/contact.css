@@ -1,0 +1,131 @@
+/* ===== CSS Reset ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    scroll-behavior: smooth;
+}
+.about1 {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.about1 img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Overlay text positioned relative to image */
+.about-text-overlay {
+    position: absolute;
+    top: 50%;       /* vertical position relative to image */
+    right: 65%;      /* horizontal position relative to image */
+    transform: translate(0, -50%); /* adjust vertical centering only */
+    color: rgb(61, 61, 61);
+    font-size: clamp(1.8rem, 6vw, 3.8rem); /* responsive font size */
+    font-family: 'Lucida Sans';
+    text-align: right; /* respects original placement */
+    white-space: nowrap; /* prevents wrapping */
+}
+/* ===== Contact Section ===== */
+.contact-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 40px 20px;
+    background: #f8f5f0;
+}
+
+.contact-container > div {
+    background: #f8f5f0;
+    padding: 20px;
+    flex: 1 1 250px;
+    min-width: 250px;
+    text-align: center;
+}
+
+.contact-container h3 {
+    color: #c47916;
+    font-weight: bold;
+    margin-bottom: 12px;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.contact-container p {
+    font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.contact-container a {
+    text-decoration: none;
+    color: #4b4b4b;
+    transition: color 0.3s;
+}
+
+.contact-container a:hover {
+    color: #c47916;
+}
+
+.contact-container i[data-lucide] {
+    width: 20px;
+    height: 20px;
+    stroke: #c47916;
+}
+
+@media (max-width: 992px) {
+    .contact-container {
+        justify-content: center;
+    }
+
+    .contact-container > div {
+        flex: 1 1 100%;
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 1050px) {
+    .about-text-overlay {
+        top: 42%; 
+        right: 62%; 
+        font-size: clamp(1.5rem, 5vw, 3rem);
+    }
+}
+@media (max-width: 992px) {
+    .about-text-overlay {
+        top: 42%; 
+        right: 58%; 
+        font-size: clamp(1.5rem, 5vw, 3rem);
+    }
+}
+
+@media (max-width: 768px) {
+    .about-text-overlay {
+        top: 40%;
+        right: 60%; 
+        font-size: clamp(1.2rem, 5vw, 2.5rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .about-text-overlay {
+        top: 45%;
+        right: 60%; 
+        font-size: clamp(1rem, 4vw, 2rem);
+    }
+}

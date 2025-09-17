@@ -1,0 +1,67 @@
+
+ {% extends "base.html" %}
+ {% load static %}
+{% block title %}
+about-as - Creme & Crunch
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<div class="about1">
+    <img src="{% static 'image/static_img/about.jpg' %}" alt="about_img">
+    <div class="about-text-overlay">ABOUT US</div>
+</div>
+
+<div class="about-row">
+    <!-- Image Section -->
+    <div class="about2">
+        <img src="{% static 'image/static_img/photo.png' %}" alt="about image">
+    </div>
+
+    <!-- Text Section -->
+    <div class="about-text">
+        <h2>ABOUT US</h2>
+        <p>
+            <strong class="strong">Delivering Incredible Taste since 2025!</strong><br>
+            Renowned as “Malivada Road” wala BKB stores, we are Creame & Crust Cakes and Pastry, the very first commercial bakery shop of Junagadh. With a portfolio of 150+ products baked to perfection with years of experience and expertise, we believe in delivering quality products that are fine-tuned to the taste and likings of our Gujaratis.<br><br>
+
+            With our commitment to hygiene and change, we have made space in hearts of all the generations and with the flair for innovation, we have created products that resonate with people of all age groups.<br><br>
+
+            We at Creame & Crust inherit the soul of our city and just like Junagadh, we have the best of both worlds for our customers. Because from “Khari to Creame & Crust Ni J” to “Biscuits and Cookies of BK are so awesome!” our ability to adapt to the expectations of customers has helped us stand the testament of time.<br><br>
+
+            Bakery Name: <strong>Creame & Crust</strong>
+        </p>
+    </div>
+</div>
+<div class="store-gallery">
+    <strong class="strong">A glimpse of our store</strong>
+    <p>Although we wish we could stimulate your sense of smell as well here on our website, but here is how we deliver visual treat that could be a feast for your eyes!</p>
+    <div class="images">
+        <img src="{% static 'image/static_img/shop_back.png' %}" alt="shop">
+        <img src="{% static 'image/static_img/shop2.jpg' %}" alt="shop">
+        <img src="{% static 'image/static_img/shop3.jpg' %}" alt="shop">
+    </div>
+</div>
+<div class="form">
+<form class="contact-form"method="POST">
+    {% csrf_token %}
+    <h2>Connecting Partnerships, One Contact at a Time.</h2>
+    
+    <label for="fname">Name</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="phone">Phone</label>
+    <input type="tel" id="phone" name="phone">
+
+    <label for="message">Message</label>
+    <textarea id="message" name="message" maxlength="180" rows="4"></textarea>
+    <div class="char-count" id="charCount">0 / 180</div>
+
+    <button type="submit">Submit</button>
+</form>
+</div>
+{% endblock %}
+
