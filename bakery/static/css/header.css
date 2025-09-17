@@ -117,11 +117,50 @@
     border: none;
     cursor: pointer;
 }
-
 .mobile-buttons {
     display: none;
 }
+.nav-item {
+    position: relative;
+    cursor: pointer;
+}
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fbfafa;
+    border: 0px solid #929090;
+    width: 300px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.10);
+    border-radius: 3px;
+    margin-top: 3px;
+}
 
+
+.nav-item:hover .dropdown {
+    display: block;    
+}
+
+.dropdown a {
+    display: block;
+    padding: 8px 0;
+    color: #3d3d3d;
+    text-decoration: none;
+}
+
+.dropdown a:hover {
+    transform: scale(1.05);
+}
+.dropdown-columns {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.dropdown-column {
+    width: 50%;
+}
 @media (max-width: 1024px) {
     .nav-menu {
         gap: 20px;
