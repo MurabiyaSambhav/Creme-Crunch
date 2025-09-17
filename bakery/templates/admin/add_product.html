@@ -3,7 +3,7 @@
 
 <div class="form-container">
     <h2>Add Bakery Product</h2>
-    <form  method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 
         <label for="name">Product Name:</label>
@@ -19,18 +19,16 @@
                 <button type="button" onclick="addWeight()">+</button>
             </div>
         </div>
+
         <label for="image">Product Image:</label>
         <input type="file" id="image" name="image" accept="image/*" required />
-        
+
         <label for="category">Category:</label>
         <select id="category" name="category" required>
-
+            {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
         </select>
-        
-        <div class="add-category-section">
-            <input type="text" id="new-category" placeholder="Add new category" />
-            <button type="button" onclick="addCategory()">Add Category</button>
-        </div>
 
         <label for="description">Description:</label>
         <textarea id="description" name="description" rows="4" required></textarea>
@@ -55,21 +53,4 @@
     function removeWeight(button) {
         button.parentElement.remove();
     }
-
-    function addCategory() {
-        const select = document.getElementById('category');
-        const input = document.getElementById('new-category');
-        const value = input.value.trim();
-        if(value) {
-            const option = document.createElement('option');
-            option.value = value.toLowerCase().replace(/\s+/g, '-');
-            option.text = value;
-            select.add(option);
-            select.value = option.value;
-            input.value = '';
-        } else {
-            alert('Please enter a category name.');
-        }
-    }
 </script>
-

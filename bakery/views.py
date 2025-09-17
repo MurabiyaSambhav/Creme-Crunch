@@ -5,7 +5,8 @@ from django.db import IntegrityError
 # from .utils.zerobounce import verify_email_with_zerobounce
 from django.conf import settings
 from django.shortcuts import render, redirect
-from .models import Category, Product, Weight
+from bakery.models import Category, Product, Weight
+from django.urls import reverse
 import re
 
 CustomUser = get_user_model()
@@ -133,13 +134,13 @@ def login(request):
                     return JsonResponse({
                         "success": True,
                         "message": "Staff login successful",
-                        "redirect_url": "templates/admin/admin_home/"
+                        "redirect_url":  reverse("admin_home")
                     })
                 else:
                     return JsonResponse({
                         "success": True,
                         "message": "Login successful",
-                        "redirect_url": "/"
+                        "redirect_url": reverse("home")
                     })
             else:
                 return JsonResponse({"success": False, "message": "Invalid password"})
@@ -162,8 +163,8 @@ def add_product(request):
         image = request.FILES.get('image')  # Get the uploaded image
         weights = request.POST.getlist('weights[]')
 
-        # Get or create category
-        category, created = Category.objects.get_or_create(name=category_id)
+        #  Use category by ID (not by name/slug)
+        category = Category.objects.get(id=category_id)
 
         # Create product with image
         product = Product.objects.create(
@@ -171,7 +172,7 @@ def add_product(request):
             price=price,
             category=category,
             description=description,
-            image=image  
+            image=image
         )
 
         # Create weights
@@ -182,31 +183,31 @@ def add_product(request):
         return redirect('our_products')  # Redirect after successful submission
 
     else:
-        categories = Category.objects.values('name')
+        categories = Category.objects.all()
         return render(request, 'admin/add_product.html', {'categories': categories})
 
+from django.shortcuts import render
+from bakery.models import Category, Product
+
 def our_products(request):
-    category_id = request.GET.get('category')  # get from URL query param
-    categories = Category.objects.values('id', 'name')  # as dictionaries
+    # Keep the raw string (for template matching)
+    selected_category = request.GET.get('category')
+    categories = Category.objects.all()
 
-    if category_id:
-        products = Product.objects.filter(category_id=category_id).values('image','name','price')
+    if selected_category and selected_category.isdigit():
+        products = Product.objects.filter(category_id=int(selected_category))
     else:
-        products = Product.objects.values('image','name','price','category_id')
+        products = Product.objects.all()
 
-    return render(request, 'our_products.html', {
-        'categories': categories,
-        'products': products,
-        'MEDIA_URL': settings.MEDIA_URL,
-        'selected_category': int(category_id) if category_id else None
+
+    return render(request, "our_products.html", {
+        "products": products,
+        "categories": categories,
+        "selected_category": selected_category,  # string
     })
-
 
 def about_as(request):
     return render(request,'about_as.html')
-
-def our_products(request):
-    return render(request,'our_products.html')
 
 def admin_home(request):
     return render(request,'admin/admin_home.html')
