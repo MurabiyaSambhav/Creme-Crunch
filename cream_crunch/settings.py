@@ -92,7 +92,6 @@ AUTH_USER_MODEL = 'bakery.CustomUser'
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # default
-    'allauth.account.auth_backends.AuthenticationBackend',  # allauth
 ]
 
 # Redirects after login/logout
@@ -126,4 +125,3 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Optional: ZeroBounce API key
-ZEROBOUNCE_API_KEY = "807c9108ede34ee897d8ce15ca92f109"

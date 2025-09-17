@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+
 {% block title %}
 Our Products - Creme & Crunch
 {% endblock %}
 {% block content %}
+
 <h2>Our Products</h2>
 <div style="display: flex; gap: 20px;">
     <div style="width: 200px; border: 1px solid #ccc; padding: 20px;">
@@ -40,23 +42,14 @@ Our Products - Creme & Crunch
         </form>
     </div>
 
+{% if products %}
     
-    <div style="flex-grow: 1;">
-        {% for product in products %}
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; width: 250px; display: inline-block; text-align: center;">
-                {% if product.image %}
-                    <img src="{{ MEDIA_URL }}{{ product.image }}" alt="{{ product.name }}" width="200">
-                {% else %}
-                    <p>No image available.</p>
-                {% endif %}
-                <h3>{{ product.name }}</h3>
-                <p>₹{{ product.price }}</p>
-                <button style="background-color: #c79a4b; color: white; padding: 10px 20px; border: none; cursor: pointer;">Add to Cart</button>
-            </div>
-        {% empty %}
-            <p>No products available.</p>
-        {% endfor %}
-    </div>
+    {% for product in products %}
+        {{ product.name }} - ₹{{ product.price }}
+    {% endfor %}
+   
+{% else %}
+    <p>No products available.</p>
+{% endif %}
 
-</div>
 {% endblock %}
