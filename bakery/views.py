@@ -18,6 +18,7 @@ def base(request):
 
 def home(request):
     categories = Category.objects.filter(parent__isnull=True)  
+    return render(request, "home.html", {"categories": categories})
 
 # def register(request):
 #     if request.method != "POST":
@@ -106,10 +107,9 @@ def register(request):
             password=password,
             phone=phone,
             address=address)
-            address=address)
+        
     except IntegrityError as e:
         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
-    return JsonResponse({"success": True,"message": "Registration successful! Please login."})
     return JsonResponse({"success": True,"message": "Registration successful! Please login."})
 
 def login(request):
@@ -123,9 +123,7 @@ def login(request):
                 auth_login(request, auth_user)
                 if auth_user.is_staff:
                     return JsonResponse({"success": True,"message": "Staff login successful","redirect_url": reverse("admin_home")})
-                    return JsonResponse({"success": True,"message": "Staff login successful","redirect_url": reverse("admin_home")})
                 else:
-                    return JsonResponse({"success": True,"message": "Login successful","redirect_url": reverse("home")})
                     return JsonResponse({"success": True,"message": "Login successful","redirect_url": reverse("home")})
             else:
                 return JsonResponse({"success": False, "message": "Invalid password"})
@@ -158,7 +156,6 @@ def add_product(request):
             category=category,
             image=image,
             description=description,)
-            description=description,)
 
         if subcategory_ids:
             product.subcategories.set(subcategory_ids)
@@ -167,7 +164,6 @@ def add_product(request):
             if w.strip():
                 Weight.objects.create(product=product, weight=w.strip())
 
-        return redirect("our_products")  
         return redirect("our_products")  
     return render(request, "admin/add_product.html", {"categories": categories})
 
@@ -178,6 +174,7 @@ def our_products(request):
     category_id = request.GET.get('category')
     categories = Category.objects.filter(parent__isnull=True)  # top-level categories
     selected_category = None
+    parent_category = None
     subcategories = Category.objects.none()
     products = Product.objects.all()
 
@@ -187,12 +184,15 @@ def our_products(request):
 
             if selected_category.parent is None:
                 # Parent category selected
-                subcategories = Category.objects.filter(parent=selected_category)
+                parent_category = selected_category.id
                 products = Product.objects.filter(category=selected_category)
             else:
                 # Subcategory selected
-                # 🔹 Get products linked via ManyToManyField `subcategories`
+                parent_category = selected_category.parent.id
                 products = Product.objects.filter(subcategories=selected_category)
+
+            # Always fetch subcategories of this parent
+            subcategories = Category.objects.filter(parent_id=parent_category)
 
         except Category.DoesNotExist:
             selected_category = None
@@ -201,10 +201,12 @@ def our_products(request):
         "categories": categories,
         "selected_category": int(category_id) if category_id else None,
         "selected_category_obj": selected_category,
+        "parent_category": parent_category,
         "subcategories": subcategories,
         "products": products,
         "MEDIA_URL": settings.MEDIA_URL,
     }
+
     return render(request, "our_products.html", context)
 
 def get_categories(request):

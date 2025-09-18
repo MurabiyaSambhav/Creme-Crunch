@@ -1,25 +1,24 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}
-Our Products - Creme & Crunch
-{% endblock %}
-{% block content %}
+{% block title %}Our Products - Creme & Crunch{% endblock %}
 
+{% block content %}
 <link rel="stylesheet" href="{% static 'css/our_products.css' %}">
 
-
 <h2>Our Products</h2>
-<div class="products-container">
+
+<!-- Whole container -->
+<div class="products-container" id="products-container">
     
     <!-- Categories -->
     <div class="categories-box">
         <h4>Categories</h4>
-        <form method="get" action="{% url 'our_products' %}">
+        <form id="category-form">
             
             <!-- All Products Option -->
             <div class="category-option">
                 <label>
-                    <input type="radio" name="category" value="" onchange="this.form.submit()" 
+                    <input type="radio" name="category" value=""
                         {% if not selected_category %}checked{% endif %}>
                     <span class="custom-radio {% if not selected_category %}active{% endif %}"></span>
                     <span class="radio-label">All</span>
@@ -30,20 +29,20 @@ Our Products - Creme & Crunch
             {% for category in categories %}
                 <div class="category-option">
                     <label>
-                        <input type="radio" name="category" value="{{ category.id }}" onchange="this.form.submit()" 
-                            {% if selected_category == category.id %}checked{% endif %}>
-                        <span class="custom-radio {% if selected_category == category.id %}active{% endif %}"></span>
+                        <input type="radio" name="category" value="{{ category.id }}"
+                            {% if selected_category == category.id or parent_category == category.id %}checked{% endif %}>
+                        <span class="custom-radio {% if selected_category == category.id or parent_category == category.id %}active{% endif %}"></span>
                         <span class="radio-label">{{ category.name }}</span>
                     </label>
                 </div>
 
-                <!-- Show Subcategories if parent selected -->
-                {% if selected_category == category.id and subcategories %}
+                <!-- Subcategories -->
+                {% if parent_category == category.id and subcategories %}
                     <div class="subcategory-box">
                         {% for sub in subcategories %}
                             <div class="subcategory-option">
                                 <label>
-                                    <input type="radio" name="category" value="{{ sub.id }}" onchange="this.form.submit()" 
+                                    <input type="radio" name="category" value="{{ sub.id }}"
                                         {% if selected_category == sub.id %}checked{% endif %}>
                                     <span>{{ sub.name }}</span>
                                 </label>
@@ -56,7 +55,7 @@ Our Products - Creme & Crunch
     </div>
 
     <!-- Products -->
-    <div class="products-box">
+    <div class="products-box" id="products-box">
         {% for product in products %}
             <div class="product-card">
                 {% if product.image %}
@@ -73,4 +72,7 @@ Our Products - Creme & Crunch
         {% endfor %}
     </div>
 </div>
+
+<!-- JS -->
+<script src="{% static 'js/our_product.js' %}"></script>
 {% endblock %}
