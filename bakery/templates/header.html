@@ -14,7 +14,24 @@
 
     <nav class="nav-menu">
       <a href="{% url 'home' %}">Home</a>
-      <a href="{% url 'our_products' %}">Our Products</a>
+        <div class="nav-item">
+            <a href="#">Our Products ▾</a>
+            <div class="dropdown">
+                <div class="dropdown-columns">
+                    <div class="dropdown-column">
+                        <a href="{% url 'our_products' %}">— All Products</a>
+                        {% for category in categories|slice:":5" %}
+                            <a href="{% url 'our_products' %}?category={{ category.id }}">— {{ category.name }}</a>
+                        {% endfor %}
+                    </div>
+                    <div class="dropdown-column">
+                        {% for category in categories|slice:"5:" %}
+                            <a href="{% url 'our_products' %}?category={{ category.id }}">— {{ category.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
       <a href="{% url 'about' %}">About Us</a>
       <a href="{% url 'contact' %}">Contact</a>
 
