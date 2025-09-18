@@ -1,65 +1,76 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}
 Our Products - Creme & Crunch
 {% endblock %}
 {% block content %}
+
+<link rel="stylesheet" href="{% static 'css/our_products.css' %}">
+
+
 <h2>Our Products</h2>
-<div style="display: flex; gap: 20px;">
-    <div style="width: 200px; border: 1px solid #ccc; padding: 20px;">
+<div class="products-container">
+    
+    <!-- Categories -->
+    <div class="categories-box">
         <h4>Categories</h4>
         <form method="get" action="{% url 'our_products' %}">
-            <div style="margin-bottom: 15px;">
-                <label style="cursor: pointer;">
-                    <input type="radio" name="category" value="" onchange="this.form.submit()" {% if not selected_category %}checked{% endif %} style="display: none;">
-                    <span style="
-                        display: inline-block;
-                        width: 18px;
-                        height: 18px;
-                        border-radius: 50%;
-                        background-color: {% if not selected_category %}blue{% else %}#ccc{% endif %};
-                        vertical-align: middle;
-                        transition: background-color 0.3s;
-                    "></span>
-                    <span style="margin-left: 8px; vertical-align: middle;">All</span>
-                </label>
+            
+            <!-- All Products Option -->
+            <div class="category-option">
+                <label>
+                    <input type="radio" name="category" value="" onchange="this.form.submit()" 
+                        {% if not selected_category %}checked{% endif %}>
+                    <span class="custom-radio {% if not selected_category %}active{% endif %}"></span>
+                    <span class="radio-label">All</span>
+                </label>    
             </div>
+
+            <!-- Main Categories -->
             {% for category in categories %}
-                <div style="margin-bottom: 15px;">
-                    <label style="cursor: pointer;">
-                        <input type="radio" name="category" value="{{ category.id }}" onchange="this.form.submit()" {% if selected_category == category.id %}checked{% endif %} style="display: none;">
-                        <span style="
-                            display: inline-block;
-                            width: 18px;
-                            height: 18px;
-                            border-radius: 50%;
-                            background-color: {% if selected_category == category.id %}blue{% else %}#ccc{% endif %};
-                            vertical-align: middle;
-                            transition: background-color 0.3s;
-                        "></span>
-                        <span style="margin-left: 8px; vertical-align: middle;">{{ category.name }}</span>
+                <div class="category-option">
+                    <label>
+                        <input type="radio" name="category" value="{{ category.id }}" onchange="this.form.submit()" 
+                            {% if selected_category == category.id %}checked{% endif %}>
+                        <span class="custom-radio {% if selected_category == category.id %}active{% endif %}"></span>
+                        <span class="radio-label">{{ category.name }}</span>
                     </label>
                 </div>
+
+                <!-- Show Subcategories if parent selected -->
+                {% if selected_category == category.id and subcategories %}
+                    <div class="subcategory-box">
+                        {% for sub in subcategories %}
+                            <div class="subcategory-option">
+                                <label>
+                                    <input type="radio" name="category" value="{{ sub.id }}" onchange="this.form.submit()" 
+                                        {% if selected_category == sub.id %}checked{% endif %}>
+                                    <span>{{ sub.name }}</span>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             {% endfor %}
         </form>
     </div>
 
-    
-    <div style="flex-grow: 1;">
+    <!-- Products -->
+    <div class="products-box">
         {% for product in products %}
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; width: 250px; display: inline-block; text-align: center;">
+            <div class="product-card">
                 {% if product.image %}
-                    <img src="{{ MEDIA_URL }}{{ product.image }}" alt="{{ product.name }}" width="200">
+                    <img src="{{ MEDIA_URL }}{{ product.image }}" alt="{{ product.name }}">
                 {% else %}
                     <p>No image available.</p>
                 {% endif %}
                 <h3>{{ product.name }}</h3>
                 <p>₹{{ product.price }}</p>
-                <button style="background-color: #c79a4b; color: white; padding: 10px 20px; border: none; cursor: pointer;">Add to Cart</button>
+                <button class="add-cart-btn">Add to Cart</button>
             </div>
         {% empty %}
             <p>No products available.</p>
         {% endfor %}
     </div>
-
 </div>
 {% endblock %}
