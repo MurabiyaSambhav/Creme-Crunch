@@ -6,36 +6,82 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 import re, json
 from django.views.decorators.csrf import csrf_exempt
-
 from .models import Category, Product, Weight, ContactForm
 
 CustomUser = get_user_model()
 
-
-# ----------------------------
-# Base & Home
-# ----------------------------
 def base(request):
     return render(request, "base.html")
 
 def home(request):
     return render(request, "home.html")
 
+# def register(request):
+#     if request.method != "POST":
+#         return JsonResponse({"success": False, "message": "Invalid request"})
 
-# ----------------------------
-# Register
-# ----------------------------
+#     username = request.POST.get("username", "").strip()
+#     email = request.POST.get("email", "").strip().lower()
+#     password = request.POST.get("password")
+#     phone = request.POST.get("phone", "").strip()
+#     address = request.POST.get("address", "").strip()
+
+#     print("Registering email:", email)
+
+#     #  ZeroBounce validation
+#     result = verify_email_with_zerobounce(email)
+#     print("ZeroBounce raw result:", result)
+
+#     if not isinstance(result, dict):
+#         return JsonResponse({"success": False, "message": "Error verifying email with ZeroBounce."})
+
+#     if "error" in result:  # API key / credits issue
+#         return JsonResponse({
+#             "success": False,
+#             "message": f"ZeroBounce error: {result['error']}"
+#         })
+
+#     status = result.get("status", "").lower()
+#     if status != "valid":
+#         return JsonResponse({
+#             "success": False,
+#             "message": f"Invalid email. ZeroBounce returned status: {status or 'missing'}"
+#         })
+
+#     #  Check duplicate email
+#     if CustomUser.objects.filter(email=email).exists():
+#         return JsonResponse({"success": False, "message": "Email already exists"})
+
+#     #  Check duplicate username
+#     if CustomUser.objects.filter(username=username).exists():
+#         return JsonResponse({"success": False, "message": "Username already exists"})
+
+#     #  Create user safely
+#     try:
+#         CustomUser.objects.create_user(
+#             username=username,
+#             email=email,
+#             password=password,
+#             phone=phone,
+#             address=address
+#         )
+#     except IntegrityError as e:
+#         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
+
+#     return JsonResponse({
+#         "success": True,
+#         "message": "Registration successful! Please login."
+#     })
+
 def register(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "message": "Invalid request"})
-
     username = request.POST.get("username", "").strip()
     email = request.POST.get("email", "").strip().lower()
     password = request.POST.get("password")
     phone = request.POST.get("phone", "").strip()
     address = request.POST.get("address", "").strip()
 
-    # --- Regex validation ---
     if not re.match(r"^[A-Za-z]{3,60}$", username):
         return JsonResponse({"success": False, "message": "Invalid username. Only letters allowed (3-60 chars)."})
 
@@ -44,81 +90,52 @@ def register(request):
 
     if not re.match(r"^\d{10}$", phone):
         return JsonResponse({"success": False, "message": "Phone must be 10 digits."})
-
-    # --- Duplicate checks ---
+    
     if CustomUser.objects.filter(email=email).exists():
         return JsonResponse({"success": False, "message": "Email already exists"})
     if CustomUser.objects.filter(username=username).exists():
         return JsonResponse({"success": False, "message": "Username already exists"})
-
-    # --- Create user safely ---
     try:
         CustomUser.objects.create_user(
             username=username,
             email=email,
             password=password,
             phone=phone,
-            address=address
-        )
+            address=address)
     except IntegrityError as e:
         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
+    return JsonResponse({"success": True,"message": "Registration successful! Please login."})
 
-    return JsonResponse({
-        "success": True,
-        "message": "Registration successful! Please login."
-    })
-
-
-# ----------------------------
-# Login / Logout
-# ----------------------------
 def login(request):
     if request.method == "POST" and request.headers.get("x-requested-with") == "XMLHttpRequest":
         email = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password")
-
         try:
             user = CustomUser.objects.get(email=email)
             auth_user = authenticate(username=user.username, password=password)
             if auth_user:
                 auth_login(request, auth_user)
-
                 if auth_user.is_staff:
-                    return JsonResponse({
-                        "success": True,
-                        "message": "Staff login successful",
-                        "redirect_url": reverse("admin_home")
-                    })
+                    return JsonResponse({"success": True,"message": "Staff login successful","redirect_url": reverse("admin_home")})
                 else:
-                    return JsonResponse({
-                        "success": True,
-                        "message": "Login successful",
-                        "redirect_url": reverse("home")
-                    })
+                    return JsonResponse({"success": True,"message": "Login successful","redirect_url": reverse("home")})
             else:
                 return JsonResponse({"success": False, "message": "Invalid password"})
         except CustomUser.DoesNotExist:
             return JsonResponse({"success": False, "message": "User not found"})
-
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
-
-
 def logout(request):
     auth_logout(request)
     return redirect("home")
 
-
-# ----------------------------
-# Add Product
-# ----------------------------
 def add_product(request):
-    categories = Category.objects.filter(parent__isnull=True)  # only main categories
+    categories = Category.objects.filter(parent__isnull=True)  
 
     if request.method == "POST":
         name = request.POST.get("name")
         price = request.POST.get("price")
         category_id = request.POST.get("category")
-        subcategory_ids = request.POST.getlist("subcategories")  #  multiple checkboxes
+        subcategory_ids = request.POST.getlist("subcategories")  
         description = request.POST.get("description")
         image = request.FILES.get("image")
         weights = request.POST.getlist("weights[]")
@@ -130,46 +147,36 @@ def add_product(request):
             price=price,
             category=category,
             image=image,
-            description=description,
-        )
+            description=description,)
 
-        #  Save many-to-many subcategories
         if subcategory_ids:
             product.subcategories.set(subcategory_ids)
 
-        #  Save weights
         for w in weights:
             if w.strip():
                 Weight.objects.create(product=product, weight=w.strip())
 
-        return redirect("our_products")  # change to your product list URL
-
+        return redirect("our_products")  
     return render(request, "admin/add_product.html", {"categories": categories})
 
-
-# ----------------------------
-# Product List (with category filter)
-# ----------------------------
 def our_products(request):
     category_id = request.GET.get('category')
     categories = Category.objects.filter(parent__isnull=True).values('id', 'name')
-
+    products = Product.objects.none()
+    try:
+        category_id = int(category_id)
+    except (TypeError, ValueError):
+        category_id = None
     if category_id:
         products = Product.objects.filter(category_id=category_id).values('image', 'name', 'price')
     else:
         products = Product.objects.values('image', 'name', 'price', 'category_id')
-
     return render(request, 'our_products.html', {
         'categories': categories,
         'products': products,
         'MEDIA_URL': settings.MEDIA_URL,
-        'selected_category': int(category_id) if category_id else None
-    })
+        'selected_category': category_id})
 
-
-# ----------------------------
-# Category APIs (AJAX)
-# ----------------------------
 def get_categories(request):
     categories = list(Category.objects.filter(parent__isnull=True).values('id', 'name'))
     return JsonResponse({"categories": categories})
@@ -218,10 +225,6 @@ def add_subcategory(request):
             return JsonResponse({"success": False, "error": str(e)})
     return JsonResponse({"success": False, "error": "Invalid request."})
 
-
-# ----------------------------
-# Other Pages
-# ----------------------------
 def about_us(request):
     error_message = ""
     if request.method == 'POST':
