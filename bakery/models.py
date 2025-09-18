@@ -14,8 +14,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
-
-
+    
 # ----------------------------
 # Category (supports subcategories via self-reference)
 # ----------------------------
@@ -25,8 +24,6 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-
-
 class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -37,9 +34,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
-
-
 
 # Delete product image when product is deleted
 @receiver(post_delete, sender=Product)
