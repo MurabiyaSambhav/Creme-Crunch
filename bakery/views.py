@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 import re, json
 from django.views.decorators.csrf import csrf_exempt
-from .models import Category, Product, Weight, ContactForm
+from .models import Category, Product, Weight, ContactForm,ProductImages
 
 CustomUser = get_user_model()
 
@@ -82,26 +82,35 @@ def add_product(request):
         category_id = request.POST.get("category")
         subcategory_ids = request.POST.getlist("subcategories")  
         description = request.POST.get("description")
-        image = request.FILES.get("image")
         weights = request.POST.getlist("weights[]")
+        images = request.FILES.getlist("images[]")  # <- multiple images
 
         category = Category.objects.get(id=category_id)
 
+        # Create the product without image (we'll handle multiple images separately)
         product = Product.objects.create(
             name=name,
             price=price,
             category=category,
-            image=image,
-            description=description,)
+            description=description,
+        )
 
+        # Assign subcategories if any
         if subcategory_ids:
             product.subcategories.set(subcategory_ids)
 
+        # Add weights
         for w in weights:
             if w.strip():
                 Weight.objects.create(product=product, weight=w.strip())
 
+        # Add multiple images
+        for img in images:
+            ProductImages.objects.create(product=product, image=img)  
+            # Make sure you have a ProductImage model with ForeignKey to Product
+
         return redirect("our_products")  
+
     return render(request, "admin/add_product.html", {"categories": categories})
 
 def our_products(request):

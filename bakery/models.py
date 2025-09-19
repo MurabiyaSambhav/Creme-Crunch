@@ -24,22 +24,9 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products")
     subcategories = models.ManyToManyField(Category, blank=True, related_name="sub_products")  
-    image = models.ImageField(upload_to="products/")
     description = models.TextField()
-
     def __str__(self):
-        return self.name
-
-@receiver(post_delete, sender=Product)
-def delete_product_image(sender, instance, **kwargs):
-    if instance.image and not instance.image.name.endswith("default.jpg"):
-        print("Deleting image:", instance.image.path)  
-        if os.path.exists(instance.image.path):
-            instance.image.delete(save=False)
-            print("Deleted successfully!")
-        else:
-            print("File does not exist:", instance.image.path)
-
+        return f"{self.product.name} - Image"
 class Weight(models.Model):
     product = models.ForeignKey("Product",on_delete=models.CASCADE,related_name="weights")
     weight = models.CharField(max_length=50)
@@ -47,6 +34,21 @@ class Weight(models.Model):
         return f"{self.product.name} - {self.weight}"
     class Meta:
         db_table = "bakery_weight"
+
+
+class ProductImages(models.Model):
+    product = models.ForeignKey("Product",on_delete=models.CASCADE,related_name="image")
+    image = models.ImageField(upload_to="products/")
+
+    def __str__(self):
+        return self.product.name
+
+#  Delete image file from MEDIA when ProductImage row is deleted
+@receiver(post_delete, sender=ProductImages)
+def delete_product_image(sender, instance, **kwargs):
+    if instance.image and os.path.exists(instance.image.path):
+        print("Deleting image:", instance.image.path)
+        instance.image.delete(save=False)
 
 class ContactForm(models.Model):
     name = models.CharField(max_length=50)
