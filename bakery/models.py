@@ -28,8 +28,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products")
-    subcategories = models.ManyToManyField(Category, blank=True, related_name="sub_products")  # ✅ multiple subcategories
-    image = models.ImageField(upload_to="products/")
+    subcategories = models.ManyToManyField(Category, blank=True, related_name="sub_products")  
     description = models.TextField()
     def __str__(self):
         return f"{self.product.name} - Image"
@@ -40,7 +39,6 @@ class Weight(models.Model):
         return f"{self.product.name} - {self.weight}"
     class Meta:
         db_table = "bakery_weight"
-
 
 class ProductImages(models.Model):
     product = models.ForeignKey("Product",on_delete=models.CASCADE,related_name="image")
