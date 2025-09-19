@@ -1,4 +1,3 @@
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -55,14 +54,13 @@ function saveCategory() {
 
     postJSON("/add_category/", { name }).then(data => {
         if (data.success) {
-            refreshCategories();             
+            refreshCategories();
             toggleBox("category-input-box", false);
         } else {
             alert(data.error || "Error adding category.");
         }
     });
 }
-
 
 function loadSubcategories(categoryId) {
     const container = document.getElementById('subcategory-container');
@@ -97,13 +95,15 @@ function saveSubcategory() {
 
     postJSON("/add_subcategory/", { name, parent: parentId }).then(data => {
         if (data.success) {
-            loadSubcategories(parentId); 
-            toggleBox("subcategory-input-box", false); 
+            loadSubcategories(parentId);
+            toggleBox("subcategory-input-box", false);
         } else {
             alert(data.error || "Error adding subcategory.");
         }
     });
 }
+
+// ---------- Image Handling ----------
 function addImage() {
     const container = document.getElementById("images-container");
 
@@ -122,14 +122,35 @@ function removeImage(btn) {
     btn.parentElement.remove();
 }
 
+// ---------- Weight Handling ----------
+const weightsContainer = document.getElementById("weights-container");
+
+weightsContainer.addEventListener("click", function (e) {
+    if (e.target.classList.contains("btn-add-weight")) {
+        const newGroup = document.createElement("div");
+        newGroup.classList.add("weight-group");
+
+        newGroup.innerHTML = `
+            <input type="text" name="weights[]" placeholder="Enter weight" required />
+            <button type="button" class="btn-add-weight">+</button>
+            <button type="button" class="btn-remove-weight">-</button>
+        `;
+
+        weightsContainer.appendChild(newGroup);
+    }
+
+    if (e.target.classList.contains("btn-remove-weight")) {
+        e.target.parentElement.remove();
+    }
+});
+
+// ---------- Category & Subcategory Buttons ----------
 document.getElementById("btn-add_category").addEventListener("click", () => toggleBox("category-input-box"));
 document.getElementById("btn-cancel-category").addEventListener("click", () => toggleBox("category-input-box", false));
 document.getElementById("btn-save-category").addEventListener("click", saveCategory);
 
-
 document.getElementById("btn-add_subcategory").addEventListener("click", () => toggleBox("subcategory-input-box"));
 document.getElementById("btn-cancel-subcategory").addEventListener("click", () => toggleBox("subcategory-input-box", false));
 document.getElementById("btn-save-subcategory").addEventListener("click", saveSubcategory);
-
 
 document.getElementById("category").addEventListener("change", e => loadSubcategories(e.target.value));

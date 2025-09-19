@@ -18,8 +18,64 @@ def base(request):
 
 def home(request):
     categories = Category.objects.filter(parent__isnull=True)  
+    return render(request, "home.html", {"categories": categories})
 
-    return render(request, "home.html",{'categories':categories})
+# def register(request):
+#     if request.method != "POST":
+#         return JsonResponse({"success": False, "message": "Invalid request"})
+
+#     username = request.POST.get("username", "").strip()
+#     email = request.POST.get("email", "").strip().lower()
+#     password = request.POST.get("password")
+#     phone = request.POST.get("phone", "").strip()
+#     address = request.POST.get("address", "").strip()
+
+#     print("Registering email:", email)
+
+#     #  ZeroBounce validation
+#     result = verify_email_with_zerobounce(email)
+#     print("ZeroBounce raw result:", result)
+
+#     if not isinstance(result, dict):
+#         return JsonResponse({"success": False, "message": "Error verifying email with ZeroBounce."})
+
+#     if "error" in result:  # API key / credits issue
+#         return JsonResponse({
+#             "success": False,
+#             "message": f"ZeroBounce error: {result['error']}"
+#         })
+
+#     status = result.get("status", "").lower()
+#     if status != "valid":
+#         return JsonResponse({
+#             "success": False,
+#             "message": f"Invalid email. ZeroBounce returned status: {status or 'missing'}"
+#         })
+
+#     #  Check duplicate email
+#     if CustomUser.objects.filter(email=email).exists():
+#         return JsonResponse({"success": False, "message": "Email already exists"})
+
+#     #  Check duplicate username
+#     if CustomUser.objects.filter(username=username).exists():
+#         return JsonResponse({"success": False, "message": "Username already exists"})
+
+#     #  Create user safely
+#     try:
+#         CustomUser.objects.create_user(
+#             username=username,
+#             email=email,
+#             password=password,
+#             phone=phone,
+#             address=address
+#         )
+#     except IntegrityError as e:
+#         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
+
+#     return JsonResponse({
+#         "success": True,
+#         "message": "Registration successful! Please login."
+#     })
 
 def register(request):
     if request.method != "POST":
@@ -39,6 +95,7 @@ def register(request):
     if not re.match(r"^\d{10}$", phone):
         return JsonResponse({"success": False, "message": "Phone must be 10 digits."})
     
+    
     if CustomUser.objects.filter(email=email).exists():
         return JsonResponse({"success": False, "message": "Email already exists"})
     if CustomUser.objects.filter(username=username).exists():
@@ -50,14 +107,11 @@ def register(request):
             password=password,
             phone=phone,
             address=address)
+        
     except IntegrityError as e:
         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
     return JsonResponse({"success": True,"message": "Registration successful! Please login."})
 
-
-# ----------------------------
-# Login / Logout
-# ----------------------------
 def login(request):
     if request.method == "POST" and request.headers.get("x-requested-with") == "XMLHttpRequest":
         email = request.POST.get("email", "").strip().lower()
@@ -76,14 +130,11 @@ def login(request):
         except CustomUser.DoesNotExist:
             return JsonResponse({"success": False, "message": "User not found"})
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+
 def logout(request):
     auth_logout(request)
     return redirect("home")
 
-
-# ----------------------------
-# Add Product
-# ----------------------------
 def add_product(request):
     categories = Category.objects.filter(parent__isnull=True)  
 
@@ -91,6 +142,7 @@ def add_product(request):
         name = request.POST.get("name")
         price = request.POST.get("price")
         category_id = request.POST.get("category")
+        subcategory_ids = request.POST.getlist("subcategories")  
         subcategory_ids = request.POST.getlist("subcategories")  
         description = request.POST.get("description")
         weights = request.POST.getlist("weights[]")
@@ -128,37 +180,43 @@ def add_product(request):
 # Product List (with category filter)
 # ----------------------------
 def our_products(request):
-    category_id = request.GET.get('category')
-
+    category_name = request.GET.get('category')  # use name instead of id
     categories = Category.objects.filter(parent__isnull=True)  # top-level categories
     selected_category = None
+    parent_category = None
     subcategories = Category.objects.none()
     products = Product.objects.all()
 
-    if category_id:
+    if category_name:
         try:
-            selected_category = Category.objects.get(id=category_id)
+            # Get category by name
+            selected_category = Category.objects.get(name=category_name)
 
             if selected_category.parent is None:
                 # Parent category selected
-                subcategories = Category.objects.filter(parent=selected_category)
+                parent_category = selected_category.id
                 products = Product.objects.filter(category=selected_category)
             else:
                 # Subcategory selected
-                # 🔹 Get products linked via ManyToManyField `subcategories`
+                parent_category = selected_category.parent.id
                 products = Product.objects.filter(subcategories=selected_category)
+
+            # Always fetch subcategories of this parent
+            subcategories = Category.objects.filter(parent_id=parent_category)
 
         except Category.DoesNotExist:
             selected_category = None
 
     context = {
         "categories": categories,
-        "selected_category": int(category_id) if category_id else None,
+        "selected_category": category_name,  # send name to template
         "selected_category_obj": selected_category,
+        "parent_category": parent_category,
         "subcategories": subcategories,
         "products": products,
         "MEDIA_URL": settings.MEDIA_URL,
     }
+
     return render(request, "our_products.html", context)
 
 def get_categories(request):
@@ -210,9 +268,6 @@ def add_subcategory(request):
     return JsonResponse({"success": False, "error": "Invalid request."})
 
 
-# ----------------------------
-# Category APIs (AJAX)
-# ----------------------------
 def get_categories(request):
     categories = list(Category.objects.filter(parent__isnull=True).values('id', 'name'))
     return JsonResponse({"categories": categories})
@@ -261,10 +316,6 @@ def add_subcategory(request):
             return JsonResponse({"success": False, "error": str(e)})
     return JsonResponse({"success": False, "error": "Invalid request."})
 
-
-# ----------------------------
-# Other Pages
-# ----------------------------
 def about_us(request):
     error_message = ""
     categories = Category.objects.filter(parent__isnull=True)  
@@ -281,6 +332,9 @@ def about_us(request):
             return redirect('about_us')
         
     return render(request, 'about_us.html', {'error_message': error_message,'categories':categories})
+
+def add_cart(request):
+    return render(request, 'admin/add_cart.html')
 
 def admin_home(request):
     return render(request, 'admin/admin_home.html')
