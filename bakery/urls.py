@@ -18,4 +18,5 @@ urlpatterns = [
     path('add_category/', views.add_category, name='add_category'),
     path('add_subcategory/', views.add_subcategory, name='add_subcategory'),
     path('all_payment/', views.all_payment, name='all_payment'),
+    path('add_cart/', views.add_cart, name='add_cart'),
 ]

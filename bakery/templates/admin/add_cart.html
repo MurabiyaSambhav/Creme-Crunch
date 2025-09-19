@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Add to cart - Creme & Crunch
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/add_cart.css' %}">
+
+<div class="product-page">
+
+    <!-- Product Image -->
+    <div class="product-image">
+        <img src="{% static 'image/products/1.png' %}">
+    </div>
+
+    <!-- Product Details -->
+    <div class="product-details">
+        <h2>NUTTY BUDDY COOKIES</h2>
+        <p class="price" id="price">₹190.00</p>
+        <p>
+            Experience the crunch of Nutty Buddy Cookies, filled with refined wheat flour, 
+            assorted nuts, raisins, and a hint of vanilla, offering a decadent nutty delight.
+        </p>
+
+        <!-- Weight Selection -->
+        <label for="weight">Select Quantity</label>
+        <select id="weight" onchange="updatePrice()">
+            <option value="190">200 gms</option>
+            <option value="360">400 gms</option>
+            <option value="540">600 gms</option>
+        </select>
+
+        <!-- Quantity & Add to Cart -->
+        <div class="cart-section">
+            <div class="quantity-selector">
+                <button onclick="changeQuantity(-1)">-</button>
+                <input type="text" id="quantity" value="1" readonly>
+                <button onclick="changeQuantity(1)">+</button>
+            </div>
+            <button class="add-to-cart">ADD TO CART</button>
+        </div>
+
+        <p><strong>Category:</strong> Cookies & Biscuits</p>
+    </div>
+</div>
+
+<script src="{% static 'js/add_cart.js' %}"></script>
+{% endblock %}

@@ -130,12 +130,12 @@ def login(request):
         except CustomUser.DoesNotExist:
             return JsonResponse({"success": False, "message": "User not found"})
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+
 def logout(request):
     auth_logout(request)
     return redirect("home")
 
 def add_product(request):
-    categories = Category.objects.filter(parent__isnull=True)  
     categories = Category.objects.filter(parent__isnull=True)  
 
     if request.method == "POST":
@@ -171,16 +171,17 @@ def add_product(request):
 # Product List (with category filter)
 # ----------------------------
 def our_products(request):
-    category_id = request.GET.get('category')
+    category_name = request.GET.get('category')  # use name instead of id
     categories = Category.objects.filter(parent__isnull=True)  # top-level categories
     selected_category = None
     parent_category = None
     subcategories = Category.objects.none()
     products = Product.objects.all()
 
-    if category_id:
+    if category_name:
         try:
-            selected_category = Category.objects.get(id=category_id)
+            # Get category by name
+            selected_category = Category.objects.get(name=category_name)
 
             if selected_category.parent is None:
                 # Parent category selected
@@ -199,7 +200,7 @@ def our_products(request):
 
     context = {
         "categories": categories,
-        "selected_category": int(category_id) if category_id else None,
+        "selected_category": category_name,  # send name to template
         "selected_category_obj": selected_category,
         "parent_category": parent_category,
         "subcategories": subcategories,
@@ -322,6 +323,9 @@ def about_us(request):
             return redirect('about_us')
         
     return render(request, 'about_us.html', {'error_message': error_message,'categories':categories})
+
+def add_cart(request):
+    return render(request, 'admin/add_cart.html')
 
 def admin_home(request):
     return render(request, 'admin/admin_home.html')

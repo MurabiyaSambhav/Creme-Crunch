@@ -1,8 +1,17 @@
 function attachListeners() {
     document.querySelectorAll('input[name="category"]').forEach(radio => {
         radio.addEventListener('change', function () {
-            let categoryId = this.value;
-            fetch(`${window.location.pathname}?category=${categoryId}&format=html`)
+            let categoryName = this.value; // e.g., "Sugar free"
+
+            // Convert spaces to underscores or hyphens for a clean URL
+            let urlCategory = categoryName.replace(/\s+/g, '_'); // Sugar free -> Sugar_free
+
+            // Update the browser URL without reloading
+            const newUrl = `${window.location.pathname}?category=${urlCategory}`;
+            window.history.replaceState(null, '', newUrl);
+
+            // Fetch filtered products using the original category name
+            fetch(`${window.location.pathname}?category=${encodeURIComponent(categoryName)}&format=html`)
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();
@@ -11,7 +20,9 @@ function attachListeners() {
                     const container = doc.querySelector("#products-container");
                     if (container) {
                         document.getElementById("products-container").innerHTML = container.innerHTML;
-                        attachListeners(); // reattach listeners on new elements
+
+                        // Reattach listeners to new elements
+                        attachListeners();
                     } else {
                         console.error("Could not find #products-container in fetched HTML");
                     }
@@ -21,4 +32,5 @@ function attachListeners() {
     });
 }
 
+// Initial call
 document.addEventListener("DOMContentLoaded", attachListeners);
