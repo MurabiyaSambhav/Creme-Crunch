@@ -84,9 +84,12 @@ body, html {
     margin-left: 25px;
     margin-top: 5px;
     padding-left: 5px;
-    /* border-left: 2px dashed #ccc; */
+ 
 }
 
 .radio-label {
     vertical-align: middle;
 }
+
+
+
