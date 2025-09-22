@@ -23,30 +23,47 @@ Add to cart - Creme & Crunch
       </div>
   </div>
 
-  <!-- RIGHT: Details -->
-  <div class="product-details">
-      <h2>{{ product.name }}</h2>
-      <p><strong>Category:</strong> {{ product.category.category_name }}</p>
-      <p>{{ product.description }}</p>
+<!-- RIGHT: Details -->
+<div class="product-details">
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.description }}</p>
 
-      <label for="weight">Select Weight:</label>
-        <select id="weight" name="weight">
+    <!-- Category -->
+    <p><strong>Category:</strong>
+        {% if categories.exists %}
+            {{ categories.first.category_name }}
+        {% else %}
+            No category
+        {% endif %}
+    </p>
+
+    <!-- Weight Select -->
+    <label for="weight">Select Weight:</label>
+    <select id="weight" name="weight">
+        {% if product.weights.all %}
             {% for w in product.weights.all %}
-            <option value="{{ w.id }}" data-price="{{ w.price }}">{{ w.weight }}</option>
+                <option value="{{ w.id }}" data-price="{{ w.price }}">{{ w.weight }}</option>
             {% endfor %}
-        </select>
+        {% else %}
+            <option value="" data-price="0">No weight available</option>
+        {% endif %}
+    </select>
 
+    <!-- Price -->
+    <p>Price: <span id="price">
+        {% if first_weight %}
+            {{ first_weight.price }}
+        {% else %}
+            0.00
+        {% endif %}
+    </span></p>
 
-      <p>Price: ₹<span id="price">{{ product.weights.first.price }}</span></p>
-
-      <label for="quantity">Quantity:</label>
-      <input type="number" id="quantity" name="quantity" value="1" min="1">
-
-      <button id="add-to-cart" style="background:#b9835c; color:white; padding:10px 20px; border:none; margin-top:20px;">
-          Add to Cart
-      </button>
-  </div>
+    <button id="add-to-cart" style="background:#b9835c; color:white; padding:10px 20px; border:none; margin-top:20px;">
+        Add to Cart
+    </button>
 </div>
-
+</span></p>
+</div>
+</div>
 <script src="{% static 'js/add_cart.js' %}"></script>
 {% endblock %}

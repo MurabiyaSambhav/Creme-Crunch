@@ -185,12 +185,32 @@ def add_cart(request):
         except Product.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=404)
 
-        # TODO: Add logic to add product to cart (DB or session)
-
+        # TODO: Add to cart logic
         return JsonResponse({'status': 'success', 'message': 'Product added to cart'})
 
-    # If GET request, redirect to payment page
-    return render(request, 'add_cart.html')
+    # GET request: show product page
+    product_id = request.GET.get('product_id')
+    if not product_id:
+        return redirect('home')
+
+    try:
+        product = Product.objects.prefetch_related('weights', 'images').get(id=product_id)
+        main_image = product.images.filter(is_main=True).first()
+
+        # Get all categories for selection (optional)
+        categories = BakeryCategory.objects.all()
+
+        # Get first weight (for default price)
+        first_weight = product.weights.first()
+    except Product.DoesNotExist:
+        return redirect('home')
+
+    return render(request, 'add_cart.html', {
+        'product': product,
+        'main_image': main_image,
+        'categories': categories,
+        'first_weight': first_weight
+    })
 
 # ----------------------------
 # Payment

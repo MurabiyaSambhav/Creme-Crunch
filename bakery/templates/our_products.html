@@ -68,7 +68,7 @@
                 {% endif %}
                 <h3>{{ product.name }}</h3>
                 <p>₹{{ product.price }}</p>
-                <a href="{% url 'add_cart' %}" class="add-cart-btn">Add to Cart</a>
+                <a href="{% url 'add_cart' %}?product_id={{ product.id }}" class="add-cart-btn">Add to Cart</a>
             </div>
         {% empty %}
             <p>No products available.</p>
