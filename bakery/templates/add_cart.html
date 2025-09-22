@@ -8,42 +8,44 @@ Add to cart - Creme & Crunch
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/add_cart.css' %}">
 
-<div class="product-page">
+<div class="product-page" style="display:flex; gap:40px; margin:50px;">
 
-    <!-- Product Image -->
-    <div class="product-image">
-        <img src="{% static 'image/products/1.png' %}">
-    </div>
+  <!-- LEFT: Images -->
+  <div class="product-images">
+      {% if main_image %}
+      <img id="main-img" src="{{ main_image.image.url }}" alt="{{ product.name }}" style="width:400px; height:auto; border:1px solid #ccc; padding:5px;">
+      {% endif %}
 
-    <!-- Product Details -->
-    <div class="product-details">
-        <h2>NUTTY BUDDY COOKIES</h2>
-        <p class="price" id="price">₹190.00</p>
-        <p>
-            Experience the crunch of Nutty Buddy Cookies, filled with refined wheat flour, 
-            assorted nuts, raisins, and a hint of vanilla, offering a decadent nutty delight.
-        </p>
+      <div class="thumbnails" style="display:flex; gap:10px; margin-top:10px;">
+          {% for img in product.images.all %}
+          <img src="{{ img.image.url }}" alt="" class="thumb-img" style="width:80px; height:auto; cursor:pointer; border:1px solid #ccc; padding:2px;">
+          {% endfor %}
+      </div>
+  </div>
 
-        <!-- Weight Selection -->
-        <label for="weight">Select Quantity</label>
-        <select id="weight" onchange="updatePrice()">
-            <option value="190">200 gms</option>
-            <option value="360">400 gms</option>
-            <option value="540">600 gms</option>
+  <!-- RIGHT: Details -->
+  <div class="product-details">
+      <h2>{{ product.name }}</h2>
+      <p><strong>Category:</strong> {{ product.category.category_name }}</p>
+      <p>{{ product.description }}</p>
+
+      <label for="weight">Select Weight:</label>
+        <select id="weight" name="weight">
+            {% for w in product.weights.all %}
+            <option value="{{ w.id }}" data-price="{{ w.price }}">{{ w.weight }}</option>
+            {% endfor %}
         </select>
 
-        <!-- Quantity & Add to Cart -->
-        <div class="cart-section">
-            <div class="quantity-selector">
-                <button onclick="changeQuantity(-1)">-</button>
-                <input type="text" id="quantity" value="1" readonly>
-                <button onclick="changeQuantity(1)">+</button>
-            </div>
-            <button class="add-to-cart">ADD TO CART</button>
-        </div>
 
-        <p><strong>Category:</strong> Cookies & Biscuits</p>
-    </div>
+      <p>Price: ₹<span id="price">{{ product.weights.first.price }}</span></p>
+
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" name="quantity" value="1" min="1">
+
+      <button id="add-to-cart" style="background:#b9835c; color:white; padding:10px 20px; border:none; margin-top:20px;">
+          Add to Cart
+      </button>
+  </div>
 </div>
 
 <script src="{% static 'js/add_cart.js' %}"></script>

@@ -2,11 +2,11 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.db import IntegrityError
 from django.conf import settings
+from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactForm, ProductImages
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.http import JsonResponse
 import re, json
-from django.views.decorators.csrf import csrf_exempt
-from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactForm, ProductImages
 
 CustomUser = get_user_model()
 
@@ -51,6 +51,10 @@ def register(request):
         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
 
     return JsonResponse({"success": True, "message": "Registration successful! Please login."})
+
+# ----------------------------
+# Login & Logout
+# ----------------------------
 
 def login(request):
     if request.method == "POST":
@@ -104,6 +108,10 @@ def add_product(request):
 
     return render(request, "admin/add_product.html", {"categories": categories})
 
+# ----------------------------
+# All Products
+# ----------------------------
+
 def our_products(request):
     categories = BakeryCategory.objects.filter(parent__isnull=True)
     products = Product.objects.all().prefetch_related('images', 'weights')
@@ -145,6 +153,10 @@ def contact(request):
     categories = BakeryCategory.objects.filter(parent__isnull=True)
     return render(request, 'contact.html', {'categories': categories})
 
+# ----------------------------
+# About Us
+# ----------------------------
+
 def about_us(request):
     categories = BakeryCategory.objects.filter(parent__isnull=True)
     if request.method == 'POST':
@@ -157,14 +169,35 @@ def about_us(request):
             return redirect('about_us')
     return render(request, 'about_us.html', {'categories': categories})
 
-
-def get_subcategories(request, category_id):
-    subs = BakerySubCategory.objects.filter(category_id=category_id)
-    sub_list = [{"id": sub.id, "name": sub.subcategory_name} for sub in subs]
-    return JsonResponse({"subcategories": sub_list})
+# ----------------------------
+# Add to Cart
+# ----------------------------
 
 def add_cart(request):
-    return render(request, 'admin/add_cart.html')
+    if request.method == "POST":
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        weight_id = data.get('weight_id')
+        quantity = int(data.get('quantity', 1))
+
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=404)
+
+        # TODO: Add logic to add product to cart (DB or session)
+
+        return JsonResponse({'status': 'success', 'message': 'Product added to cart'})
+
+    # If GET request, redirect to payment page
+    return render(request, 'add_cart.html')
+
+# ----------------------------
+# Payment
+# ----------------------------
+
+def payment(request):
+    return render(request, 'payment.html')
 
 def admin_base(request):
     return render(request, 'admin/admin_base.html')
