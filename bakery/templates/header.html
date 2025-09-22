@@ -14,27 +14,45 @@
 
     <nav class="nav-menu">
       <a href="{% url 'home' %}">Home</a>
-        <div class="nav-item">
-            <a href="#">Our Products ▾</a>
-            <div class="dropdown">
-                <div class="dropdown-columns">
-                    <div class="dropdown-column">
-                        <a href="{% url 'our_products' %}">— All Products</a>
-                        {% for category in categories|slice:":5" %}
+      <div class="nav-item">
+        <a href="#">Our Products ▾</a>
+        <div class="dropdown">
+            <div class="dropdown-columns">
+
+                <!-- Left Column -->
+                <div class="dropdown-column">
+                    <a href="{% url 'our_products' %}">— All Products</a>
+                    {% for category in categories %}
+                        {% if forloop.counter0|divisibleby:2 %}
                             <a href="{% url 'our_products' %}?category={{ category.id }}">— {{ category.name }}</a>
-                        {% endfor %}
-                    </div>
-                    <div class="dropdown-column">
-                        {% for category in categories|slice:"5:" %}
-                            <a href="{% url 'our_products' %}?category={{ category.id }}">— {{ category.name }}</a>
-                        {% endfor %}
-                    </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
+
+                <!-- Right Column -->
+                <div class="dropdown-column">
+                    {% for category in categories %}
+                        {% if not forloop.counter0|divisibleby:2 %}
+                            <a href="{% url 'our_products' %}?category={{ category.id }}">— {{ category.name }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
             </div>
         </div>
+    </div>
+
       <a href="{% url 'about' %}">About Us</a>
       <a href="{% url 'contact' %}">Contact</a>
-      <a href="{% url 'admin_base' %}">admin</a>
+      <a href="{% url 'admin_home' %}">admin</a>
+      <div class="search-box">
+        <form action="{% url 'our_products' %}" method="get">
+          <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q }}">
+          <button type="submit">
+            <i data-lucide="search"></i>
+          </button>
+        </form>
+      </div>
       <div class="mobile-buttons">
         <a href="#" class="btn-cart">
           <i data-lucide="shopping-cart"></i> Cart ₹0.00

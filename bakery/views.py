@@ -7,6 +7,8 @@ from django.urls import reverse
 import re, json
 from django.views.decorators.csrf import csrf_exempt
 from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactForm, ProductImages
+from django.core.paginator import Paginator
+
 
 CustomUser = get_user_model()
 
@@ -171,3 +173,120 @@ def admin_base(request):
 
 def all_payment(request):
     return render(request, 'admin/all_payment.html')
+
+def contact(request):
+    categories = Category.objects.filter(parent__isnull=True)  
+
+    return render(request, 'contact.html',{'categories':categories})
+
+
+def get_page_range(paginator, current_page, max_pages=5):
+    """
+    Custom pagination numbers with ellipsis.
+    Example: 1 ... 3 4 5 ... 10
+    """
+    total_pages = paginator.num_pages
+    if total_pages <= max_pages:
+        return range(1, total_pages + 1)
+
+    page_range = []
+
+    # Always show first page
+    page_range.append(1)
+
+    # Add left dots
+    if current_page > 3:
+        page_range.append("...")
+
+    # Pages around current page
+    start = max(2, current_page - 1)
+    end = min(total_pages - 1, current_page + 1)
+    page_range.extend(range(start, end + 1))
+
+    # Add right dots
+    if current_page < total_pages - 2:
+        page_range.append("...")
+
+    # Always show last page
+    page_range.append(total_pages)
+
+    return page_range
+
+def our_products(request):
+    total_products = Product.objects.count()
+
+    category_id = request.GET.get('category')  
+    query = request.GET.get('q')  
+    sort_option = request.GET.get('sort')  
+
+    categories = Category.objects.filter(parent__isnull=True)  
+    selected_category = None
+    parent_category = None
+    subcategories = Category.objects.none()
+    products = Product.objects.all()
+
+    # 🔹 Category filter
+    if category_id:
+        try:
+            selected_category = Category.objects.get(id=category_id)
+
+            if selected_category.parent is None:
+                parent_category = selected_category.id
+                products = Product.objects.filter(category=selected_category)
+            else:
+                parent_category = selected_category.parent.id
+                products = Product.objects.filter(subcategories=selected_category)
+
+            subcategories = Category.objects.filter(parent_id=parent_category)
+
+        except Category.DoesNotExist:
+            selected_category = None
+    filtered_count = products.count()  # after category/search filter
+
+
+    # 🔹 Search filter
+    if query:
+        products = products.filter(name__icontains=query)
+
+    # 🔹 Sorting
+    if sort_option == "price_low":
+        products = products.order_by("price")  
+    elif sort_option == "price_high":
+        products = products.order_by("-price")
+    elif sort_option == "latest":
+        products = products.order_by("-id")  
+    elif sort_option == "rating":
+        products = products.order_by("-rating")  
+    elif sort_option == "popularity":
+        products = products.order_by("-popularity")  
+
+    # 🔹 Pagination
+    paginator = Paginator(products, 9)
+    page_number = request.GET.get('page')
+    products_page = paginator.get_page(page_number)
+
+    page_range = get_page_range(paginator, products_page.number)
+    start_index = (products_page.number - 1) * paginator.per_page + 1
+    end_index = start_index + len(products_page.object_list) - 1
+    total_results = paginator.count
+
+    context = {
+        "categories": categories,
+        "selected_category": category_id,
+        "selected_category_obj": selected_category,
+        "parent_category": parent_category,
+        "subcategories": subcategories,
+        "products": products_page,
+        "page_range": page_range,
+        "MEDIA_URL": settings.MEDIA_URL,
+        "query": query,
+        "start_index": start_index,
+        "end_index": end_index,
+        "total_results": total_results,
+        "start_index": products_page.start_index() if filtered_count > 0 else 0,
+        "end_index": products_page.end_index() if filtered_count > 0 else 0,
+        "filtered_count": filtered_count,    
+        "total_products": total_products,      
+    }
+
+    return render(request, "our_products.html", context)
