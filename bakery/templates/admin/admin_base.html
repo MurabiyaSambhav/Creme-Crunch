@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin Panel{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/admin_css/admin_base.css' %}">
+</head>
+<body>
+<style>
+/* Reset default margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+}
+
+</style>
+<header class="admin-header">
+  <nav class="admin-nav">
+    <p class="admin-title">Admin Panel</p>
+
+    <!-- Center menu -->
+    <ul class="admin-menu">
+      <li><a href="{% url 'add_product' %}">Add Product</a></li>
+      <li><a href="{% url 'add_category' %}">Add Category</a></li>
+      <li><a href="{% url 'all_payment' %}">All Payment</a></li>
+    </ul>
+
+    <!-- Right side Home button -->
+    <div class="home-button-container">
+      <a href="{% url 'home' %}" class="home-button">Home</a>
+    </div>
+  </nav>
+</header>
+
+<!-- Page content goes here -->
+<main class="content">
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

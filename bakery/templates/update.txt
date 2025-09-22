@@ -1,11 +1,8 @@
 git checkout main
 git pull origin main
-git checkout 1  
 git merge main
 
 
 venv\scripts\activate
 
 python manage.py runserver
-
-

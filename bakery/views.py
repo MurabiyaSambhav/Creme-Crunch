@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactForm, ProductImages
 from django.core.paginator import Paginator
-import re
+import re, json
 
 CustomUser = get_user_model()
 
@@ -17,12 +17,16 @@ def base(request):
     return render(request, "base.html")
 
 def home(request):
-    categories = Category.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.filter(parent__isnull=True)  
     return render(request, "home.html", {"categories": categories})
 
+# ----------------------------
+# User Auth
+# ----------------------------
 def register(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "message": "Invalid request"})
+
     username = request.POST.get("username", "").strip()
     email = request.POST.get("email", "").strip().lower()
     password = request.POST.get("password")
@@ -30,33 +34,26 @@ def register(request):
     address = request.POST.get("address", "").strip()
 
     if not re.match(r"^[A-Za-z]{3,60}$", username):
-        return JsonResponse({"success": False, "message": "Invalid username. Only letters allowed (3-60 chars)."})
-
+        return JsonResponse({"success": False, "message": "Invalid username."})
     if not re.match(r"^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$", email):
-        return JsonResponse({"success": False, "message": "Invalid email address."})
-
+        return JsonResponse({"success": False, "message": "Invalid email."})
     if not re.match(r"^\d{10}$", phone):
         return JsonResponse({"success": False, "message": "Phone must be 10 digits."})
-    
-    
+
     if CustomUser.objects.filter(email=email).exists():
         return JsonResponse({"success": False, "message": "Email already exists"})
     if CustomUser.objects.filter(username=username).exists():
         return JsonResponse({"success": False, "message": "Username already exists"})
+
     try:
-        CustomUser.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            phone=phone,
-            address=address)
-        
+        CustomUser.objects.create_user(username=username, email=email, password=password, phone=phone, address=address)
     except IntegrityError as e:
         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
-    return JsonResponse({"success": True,"message": "Registration successful! Please login."})
+
+    return JsonResponse({"success": True, "message": "Registration successful! Please login."})
 
 def login(request):
-    if request.method == "POST" and request.headers.get("x-requested-with") == "XMLHttpRequest":
+    if request.method == "POST":
         email = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password")
         try:
@@ -64,10 +61,10 @@ def login(request):
             auth_user = authenticate(username=user.username, password=password)
             if auth_user:
                 auth_login(request, auth_user)
+                redirect_url = reverse("home")
                 if auth_user.is_staff:
-                    return JsonResponse({"success": True,"message": "Staff login successful","redirect_url": reverse("admin_home")})
-                else:
-                    return JsonResponse({"success": True,"message": "Login successful","redirect_url": reverse("home")})
+                    redirect_url = reverse("admin_base")
+                return JsonResponse({"success": True, "message": "Login successful", "redirect_url": redirect_url})
             else:
                 return JsonResponse({"success": False, "message": "Invalid password"})
         except CustomUser.DoesNotExist:
@@ -77,7 +74,6 @@ def login(request):
 def logout(request):
     auth_logout(request)
     return redirect("home")
-
 
 # ----------------------------
 # Product Management
@@ -129,28 +125,36 @@ def get_subcategories(request, category_id):
     sub_list = [{"id": sub.id, "name": sub.subcategory_name} for sub in subs]
     return JsonResponse({"subcategories": sub_list})
 
-def about_us(request):
-    error_message = ""
-    categories = Category.objects.filter(parent__isnull=True)  
+# ----------------------------
+# Contact & About
+# ----------------------------
+def contact(request):
+    categories = BakeryCategory.objects.filter(parent__isnull=True)
+    return render(request, 'contact.html', {'categories': categories})
 
+def about_us(request):
+    categories = BakeryCategory.objects.filter(parent__isnull=True)
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
         message = request.POST.get('message')
-        if len(message) > 180:
-            error_message = "Message cannot exceed 180 characters."
-        else:
+        if len(message) <= 180:
             ContactForm.objects.create(name=name, email=email, phone=phone, message=message)
             return redirect('about_us')
-        
-    return render(request, 'about_us.html', {'error_message': error_message,'categories':categories})
+    return render(request, 'about_us.html', {'categories': categories})
+
+
+def get_subcategories(request, category_id):
+    subs = BakerySubCategory.objects.filter(category_id=category_id)
+    sub_list = [{"id": sub.id, "name": sub.subcategory_name} for sub in subs]
+    return JsonResponse({"subcategories": sub_list})
 
 def add_cart(request):
     return render(request, 'admin/add_cart.html')
 
-def admin_home(request):
-    return render(request, 'admin/admin_home.html')
+def admin_base(request):
+    return render(request, 'admin/admin_base.html')
 
 def all_payment(request):
     return render(request, 'admin/all_payment.html')
