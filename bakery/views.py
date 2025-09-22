@@ -5,7 +5,7 @@ from django.conf import settings
 from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactForm, ProductImages
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import JsonResponse
+from django.core.paginator import Paginator
 import re, json
 
 CustomUser = get_user_model()
@@ -247,7 +247,7 @@ def all_payment(request):
     return render(request, 'admin/all_payment.html')
 
 def contact(request):
-    categories = Category.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.filter(parent__isnull=True)  
 
     return render(request, 'contact.html',{'categories':categories})
 
@@ -291,16 +291,16 @@ def our_products(request):
     query = request.GET.get('q')  
     sort_option = request.GET.get('sort')  
 
-    categories = Category.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.filter(parent__isnull=True)  
     selected_category = None
     parent_category = None
-    subcategories = Category.objects.none()
+    subcategories = BakeryCategory.objects.none()
     products = Product.objects.all()
 
     # 🔹 Category filter
     if category_id:
         try:
-            selected_category = Category.objects.get(id=category_id)
+            selected_category = BakeryCategory.objects.get(id=category_id)
 
             if selected_category.parent is None:
                 parent_category = selected_category.id
@@ -309,9 +309,9 @@ def our_products(request):
                 parent_category = selected_category.parent.id
                 products = Product.objects.filter(subcategories=selected_category)
 
-            subcategories = Category.objects.filter(parent_id=parent_category)
+            subcategories = BakeryCategory.objects.filter(parent_id=parent_category)
 
-        except Category.DoesNotExist:
+        except BakeryCategory.DoesNotExist:
             selected_category = None
     filtered_count = products.count()  # after category/search filter
 
