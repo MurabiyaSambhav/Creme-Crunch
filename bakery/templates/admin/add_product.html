@@ -1,6 +1,10 @@
-
+{% extends "admin/admin_base.html" %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/add_products.css' %}">
+
+{% block title %}Add Product | Admin Panel{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_css/add_products.css' %}">
 
 <div class="form-container">
     <h2>Add Bakery Product</h2>
@@ -16,45 +20,49 @@
         <input type="number" id="price" name="price" step="0.01" required />
 
         <!-- Weights -->
-        <label>Weight:</label>
+        <label>Weight(s):</label>
         <div id="weights-container">
             <div class="weight-group">
-                <input type="text" name="weights[]" placeholder="Enter weight" required />
+                <input type="text" name="weights[]" placeholder="Enter weight (e.g. 250g, 1kg)" required />
                 <button type="button" class="btn-add-weight">+</button>
             </div>
         </div>
 
         <!-- Category -->
         <label for="category">Category:</label>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; gap:6px; align-items:center;">
-                <select id="category" name="category" required>
-                    <option value="">-- Select Category --</option>
-                    {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" id="btn-add_category">+ Add Category</button>
-            </div>
-            <div id="category-input-box" style="display:none; gap:6px; margin-top:6px;">
-                <input type="text" id="new-category" placeholder="New category name" />
-                <button type="button" id="btn-save-category">Save</button>
-                <button type="button" id="btn-cancel-category">Cancel</button>
-            </div>
+        <div class="category-wrapper">
+            <select id="category" name="category" required>
+                <option value="">-- Select Category --</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.category_name }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" id="btn-add_category">+ New Category</button>
         </div>
 
+        <!-- Inline new category box -->
+        <div id="category-input-box" class="inline-box" style="display:none;">
+            <input type="text" id="new-category" placeholder="New category name" />
+            <button type="button" id="btn-save-category">Save</button>
+            <button type="button" id="btn-cancel-category">Cancel</button>
+        </div>
 
-        <!-- Subcategory -->
+        <!-- Subcategories -->
         <label>Subcategories (optional):</label>
         <div id="subcategory-container">
-            <p style="color:gray;">Select a category first</p>
+            <p class="hint">Select a category first</p>
         </div>
-        <button type="button" id="btn-add_subcategory">+ Add Subcategory</button>
-        <div id="subcategory-input-box" style="display:none; gap:6px; margin-top:6px;">
+
+        <button type="button" id="btn-add_subcategory" disabled>+ New Subcategory</button>
+
+        <!-- Inline new subcategory box -->
+        <div id="subcategory-input-box" class="inline-box" style="display:none;">
             <input type="text" id="new-subcategory" placeholder="New subcategory name" />
             <button type="button" id="btn-save-subcategory">Save</button>
             <button type="button" id="btn-cancel-subcategory">Cancel</button>
         </div>
+
+        <!-- Product Images -->
         <label>Product Images:</label>
         <div id="images-container">
             <div class="image-group">
@@ -73,3 +81,4 @@
 </div>
 
 <script src="{% static 'js/add_product.js' %}"></script>
+{% endblock %}

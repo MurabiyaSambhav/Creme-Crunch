@@ -18,17 +18,12 @@ class CustomUser(AbstractUser):
 # ----------------------------
 # Category (supports subcategories via self-reference)
 # ----------------------------
-class Category(models.Model):
-    name = models.CharField(max_length=100)
-    parent = models.ForeignKey('self',on_delete=models.CASCADE,null=True,blank=True,related_name="children")
 
     def __str__(self):
         return self.name
 class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products")
-    subcategories = models.ManyToManyField(Category, blank=True, related_name="sub_products")  # multiple subcategories
     description = models.TextField()
     def __str__(self):
         return f"{self.product.name} - Image"
@@ -67,3 +62,27 @@ class ContactForm(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.email}"
+    
+class BakeryCategory(models.Model):
+    category_name = models.CharField(max_length=100, unique=True)
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
+    )
+
+    class Meta:
+        db_table = "bakery_categories"
+
+    def __str__(self):
+        return self.category_name
+
+class BakerySubCategory(models.Model):
+    category = models.ForeignKey(
+        BakeryCategory, on_delete=models.CASCADE, related_name="subcategories"
+    )
+    subcategory_name = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = "bakery_subcategories"
+
+    def __str__(self):
+        return f"{self.category.category_name} → {self.subcategory_name}"

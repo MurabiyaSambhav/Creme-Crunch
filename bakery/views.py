@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 import re, json
 from django.views.decorators.csrf import csrf_exempt
-from .models import Category, Product, Weight, ContactForm,ProductImages
+from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactForm,ProductImages
 
 CustomUser = get_user_model()
 
@@ -17,7 +17,7 @@ def base(request):
     return render(request, "base.html")
 
 def home(request):
-    categories = Category.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.filter(parent__isnull=True)  
     return render(request, "home.html", {"categories": categories})
 
 # def register(request):
@@ -136,7 +136,7 @@ def logout(request):
     return redirect("home")
 
 def add_product(request):
-    categories = Category.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.filter(parent__isnull=True)  
 
     if request.method == "POST":
         name = request.POST.get("name")
@@ -148,7 +148,7 @@ def add_product(request):
         weights = request.POST.getlist("weights[]")
         images = request.FILES.getlist("images[]")  # <- multiple images
 
-        category = Category.objects.get(id=category_id)
+        category = BakeryCategory.objects.get(id=category_id)
 
         # Create the product without image (we'll handle multiple images separately)
         product = Product.objects.create(
@@ -181,16 +181,16 @@ def add_product(request):
 # ----------------------------
 def our_products(request):
     category_name = request.GET.get('category')  # use name instead of id
-    categories = Category.objects.filter(parent__isnull=True)  # top-level categories
+    categories = BakeryCategory.objects.filter(parent__isnull=True)  # top-level categories
     selected_category = None
     parent_category = None
-    subcategories = Category.objects.none()
+    subcategories = BakerySubCategory.objects.none()
     products = Product.objects.all()
 
     if category_name:
         try:
             # Get category by name
-            selected_category = Category.objects.get(name=category_name)
+            selected_category = BakeryCategory.objects.get(name=category_name)
 
             if selected_category.parent is None:
                 # Parent category selected
@@ -202,9 +202,9 @@ def our_products(request):
                 products = Product.objects.filter(subcategories=selected_category)
 
             # Always fetch subcategories of this parent
-            subcategories = Category.objects.filter(parent_id=parent_category)
+            subcategories = BakerySubCategory.objects.filter(parent_id=parent_category)
 
-        except Category.DoesNotExist:
+        except BakeryCategory.DoesNotExist:
             selected_category = None
 
     context = {
@@ -220,29 +220,14 @@ def our_products(request):
     return render(request, "our_products.html", context)
 
 def get_categories(request):
-    categories = list(Category.objects.filter(parent__isnull=True).values('id', 'name'))
+    categories = list(BakeryCategory.objects.filter(parent__isnull=True).values('id', 'name'))
     return JsonResponse({"categories": categories})
 
 def get_subcategories(request, category_id):
-    subcategories = list(Category.objects.filter(parent_id=category_id).values('id', 'name'))
+    subcategories = list(BakerySubCategory.objects.filter(parent_id=category_id).values('id', 'name'))
     return JsonResponse({"subcategories": subcategories})
 
-def add_category(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            name = data.get("name")
-            if not name:
-                return JsonResponse({"success": False, "error": "Name required."})
 
-            if Category.objects.filter(name__iexact=name, parent__isnull=True).exists():
-                return JsonResponse({"success": False, "error": "Category already exists."})
-
-            Category.objects.create(name=name)
-            return JsonResponse({"success": True})
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
-    return JsonResponse({"success": False, "error": "Invalid request."})
 
 def add_subcategory(request):
     if request.method == "POST":
@@ -254,71 +239,23 @@ def add_subcategory(request):
             if not parent_id or not name:
                 return JsonResponse({"success": False, "error": "Parent and name required."})
 
-            parent = Category.objects.filter(id=parent_id, parent__isnull=True).first()
+            parent = BakeryCategory.objects.filter(id=parent_id, parent__isnull=True).first()
             if not parent:
                 return JsonResponse({"success": False, "error": "Parent category not found."})
 
-            if Category.objects.filter(name__iexact=name, parent=parent).exists():
+            if BakerySubCategory.objects.filter(name__iexact=name, parent=parent).exists():
                 return JsonResponse({"success": False, "error": "Subcategory already exists."})
 
-            Category.objects.create(name=name, parent=parent)
+                Category.objects.create(name=name, parent=parent)
             return JsonResponse({"success": True})
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)})
     return JsonResponse({"success": False, "error": "Invalid request."})
 
-
-def get_categories(request):
-    categories = list(Category.objects.filter(parent__isnull=True).values('id', 'name'))
-    return JsonResponse({"categories": categories})
-
-def get_subcategories(request, category_id):
-    subcategories = list(Category.objects.filter(parent_id=category_id).values('id', 'name'))
-    return JsonResponse({"subcategories": subcategories})
-
-def add_category(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            name = data.get("name")
-            if not name:
-                return JsonResponse({"success": False, "error": "Name required."})
-
-            if Category.objects.filter(name__iexact=name, parent__isnull=True).exists():
-                return JsonResponse({"success": False, "error": "Category already exists."})
-
-            Category.objects.create(name=name)
-            return JsonResponse({"success": True})
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
-    return JsonResponse({"success": False, "error": "Invalid request."})
-
-def add_subcategory(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            name = data.get("name")
-            parent_id = data.get("parent")
-
-            if not parent_id or not name:
-                return JsonResponse({"success": False, "error": "Parent and name required."})
-
-            parent = Category.objects.filter(id=parent_id, parent__isnull=True).first()
-            if not parent:
-                return JsonResponse({"success": False, "error": "Parent category not found."})
-
-            if Category.objects.filter(name__iexact=name, parent=parent).exists():
-                return JsonResponse({"success": False, "error": "Subcategory already exists."})
-
-            Category.objects.create(name=name, parent=parent)
-            return JsonResponse({"success": True})
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
-    return JsonResponse({"success": False, "error": "Invalid request."})
 
 def about_us(request):
     error_message = ""
-    categories = Category.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.filter(parent__isnull=True)  
 
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -333,16 +270,38 @@ def about_us(request):
         
     return render(request, 'about_us.html', {'error_message': error_message,'categories':categories})
 
+def add_category(request):
+    if request.method == "POST":
+        category_name = request.POST.get("name")
+        subcategories = request.POST.getlist("subcategories[]")
+
+        # Ensure category is unique
+        category, created = BakeryCategory.objects.get_or_create(category_name=category_name)
+
+        # Save subcategories
+        for sub in subcategories:
+            if sub.strip():
+                BakerySubCategory.objects.get_or_create(
+                    category=category,
+                    subcategory_name=sub.strip()
+                )
+
+        return redirect("add_category")
+
+    return render(request, "admin/add_category.html", {
+        "categories": BakeryCategory.objects.all()
+    })
+
 def add_cart(request):
     return render(request, 'admin/add_cart.html')
 
-def admin_home(request):
-    return render(request, 'admin/admin_home.html')
+def admin_base(request):
+    return render(request, 'admin/admin_base.html')
 
 def all_payment(request):
     return render(request, 'admin/all_payment.html')
 
 def contact(request):
-    categories = Category.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.filter(parent__isnull=True)  
 
     return render(request, 'contact.html',{'categories':categories})

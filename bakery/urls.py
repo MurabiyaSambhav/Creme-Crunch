@@ -11,7 +11,7 @@ urlpatterns = [
     path('login/', views.login, name='login'), 
     path('logout/', views.logout, name='logout'), 
     path('contact/', views.contact, name='contact'), 
-    path('admin_home/', views.admin_home, name='admin_home'),
+    path('admin_base/', views.admin_base, name='admin_base'),
     path('our_products/', views.our_products, name='our_products'),
     path('add_product/', views.add_product, name='add_product'),
     path('get_categories/', views.get_categories, name='get_categories'),
@@ -20,4 +20,5 @@ urlpatterns = [
     path('add_subcategory/', views.add_subcategory, name='add_subcategory'),
     path('all_payment/', views.all_payment, name='all_payment'),
     path('add_cart/', views.add_cart, name='add_cart'),
+    path('add_category/', views.add_category, name='add_category'),
 ]
