@@ -1,156 +1,156 @@
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        for (const cookie of document.cookie.split(';')) {
-            const trimmed = cookie.trim();
-            if (trimmed.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
-                break;
+document.addEventListener("DOMContentLoaded", function () {
+    // ===============================
+    // CSRF helper
+    // ===============================
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            for (const cookie of document.cookie.split(';')) {
+                const trimmed = cookie.trim();
+                if (trimmed.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function postJSON(url, data) {
+        return fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify(data)
+        }).then(res => res.json());
+    }
+
+    // ===============================
+    // Toggle Input Boxes
+    // ===============================
+    function toggleBox(id, show = true) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = show ? "flex" : "none";
+            if (!show) {
+                const input = el.querySelector("input");
+                if (input) input.value = "";
             }
         }
     }
-    return cookieValue;
-}
-const csrftoken = getCookie('csrftoken');
 
-function postJSON(url, data) {
-    return fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken
-        },
-        body: JSON.stringify(data)
-    }).then(res => res.json());
-}
+    // ===============================
+    // Category / Subcategory
+    // ===============================
+    const categorySelect = document.getElementById("category");
+    const subSelect = document.getElementById("subcategories");
+    const selectedBox = document.getElementById("selected-subcategories");
 
-function toggleBox(id, show = true) {
-    const el = document.getElementById(id);
-    if (el) {
-        el.style.display = show ? "flex" : "none";
-        if (!show) {
-            const input = el.querySelector("input");
-            if (input) input.value = "";
+    function loadSubcategories(categoryId) {
+        if (!subSelect) return;
+        subSelect.innerHTML = ""; // reset
+
+        if (!categoryId) {
+            subSelect.innerHTML = '<option value="">-- Select a category first --</option>';
+            selectedBox.innerHTML = "";
+            return;
         }
-    }
-}
 
-function refreshCategories() {
-    fetch("/get_categories/")
-        .then(res => res.json())
-        .then(data => {
-            const select = document.getElementById('category');
-            select.innerHTML = '<option value="">-- Select Category --</option>';
-            data.categories.forEach(cat => {
-                select.insertAdjacentHTML("beforeend",
-                    `<option value="${cat.id}">${cat.name}</option>`);
+        fetch(`/get_subcategories/${categoryId}/`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.subcategories.length > 0) {
+                    data.subcategories.forEach(sub => {
+                        subSelect.insertAdjacentHTML("beforeend",
+                            `<option value="${sub.id}">${sub.name}</option>`);
+                    });
+                } else {
+                    subSelect.innerHTML = '<option value="">-- No subcategories available --</option>';
+                }
+                selectedBox.innerHTML = ""; // clear selected tags
+            })
+            .catch(err => {
+                console.error("Error loading subcategories:", err);
+                subSelect.innerHTML = '<option value="">-- Error loading subcategories --</option>';
+            });
+    }
+
+    if (subSelect && selectedBox) {
+        subSelect.addEventListener("change", function () {
+            selectedBox.innerHTML = "";
+            Array.from(subSelect.selectedOptions).forEach(option => {
+                const tag = document.createElement("span");
+                tag.classList.add("tag");
+                tag.innerHTML = `${option.text} <button type="button" data-id="${option.value}" class="remove-sub">x</button>`;
+                selectedBox.appendChild(tag);
             });
         });
-}
 
-function saveCategory() {
-    const name = document.getElementById("new-category").value.trim();
-    if (!name) return alert("Please enter a name.");
-
-    postJSON("/add_category/", { name }).then(data => {
-        if (data.success) {
-            refreshCategories();
-            toggleBox("category-input-box", false);
-        } else {
-            alert(data.error || "Error adding category.");
-        }
-    });
-}
-
-function loadSubcategories(categoryId) {
-    const container = document.getElementById('subcategory-container');
-    container.innerHTML = "";
-
-    if (!categoryId) return;
-
-    fetch(`/get_subcategories/${categoryId}/`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.subcategories.length > 0) {
-                data.subcategories.forEach(sub => {
-                    container.insertAdjacentHTML("beforeend", `
-                        <label>
-                            <input type="checkbox" name="subcategories" value="${sub.id}">
-                            ${sub.name}
-                        </label><br>
-                    `);
+        selectedBox.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-sub")) {
+                const id = e.target.getAttribute("data-id");
+                Array.from(subSelect.options).forEach(opt => {
+                    if (opt.value === id) opt.selected = false;
                 });
-            } else {
-                container.innerHTML = "<p style='color:gray;'>No subcategories found.</p>";
+                e.target.parentElement.remove();
             }
         });
-}
+    }
 
-function saveSubcategory() {
-    const parentId = document.getElementById('category').value;
-    if (!parentId) return alert("Select a category first.");
+    categorySelect?.addEventListener("change", e => loadSubcategories(e.target.value));
 
-    const name = document.getElementById("new-subcategory").value.trim();
-    if (!name) return alert("Please enter a name.");
+    // ===============================
+    // Weights + Prices
+    // ===============================
+    const weightsContainer = document.getElementById("weights-container");
+    if (weightsContainer) {
+        weightsContainer.addEventListener("click", function (e) {
+            if (e.target.classList.contains("btn-add-weight")) {
+                const newGroup = document.createElement("div");
+                newGroup.classList.add("weight-group");
+                newGroup.innerHTML = `
+                    <input type="text" name="weights[]" placeholder="Weight (e.g. 250g, 1kg)" required />
+                    <input type="number" name="weight_prices[]" placeholder="Price (₹)" step="0.01" required />
+                    <button type="button" class="btn-add-weight">+</button>
+                    <button type="button" class="btn-remove-weight">-</button>
+                `;
+                weightsContainer.appendChild(newGroup);
+            }
 
-    postJSON("/add_subcategory/", { name, parent: parentId }).then(data => {
-        if (data.success) {
-            loadSubcategories(parentId);
-            toggleBox("subcategory-input-box", false);
-        } else {
-            alert(data.error || "Error adding subcategory.");
-        }
-    });
-}
+            if (e.target.classList.contains("btn-remove-weight")) {
+                e.target.parentElement.remove();
+            }
+        });
+    }
 
-// ---------- Image Handling ----------
-function addImage() {
-    const container = document.getElementById("images-container");
+    // ===============================
+    // Images (Main + Sub)
+    // ===============================
+    let imageIndex = 1;
+    const imagesContainer = document.getElementById("images-container");
 
-    const div = document.createElement("div");
-    div.classList.add("image-group");
+    window.addImage = function () {
+        if (!imagesContainer) return;
 
-    div.innerHTML = `
-        <input type="file" name="images[]" accept="image/*" required />
-        <button type="button" onclick="removeImage(this)">-</button>
-    `;
-
-    container.appendChild(div);
-}
-
-function removeImage(btn) {
-    btn.parentElement.remove();
-}
-
-// ---------- Weight Handling ----------
-const weightsContainer = document.getElementById("weights-container");
-
-weightsContainer.addEventListener("click", function (e) {
-    if (e.target.classList.contains("btn-add-weight")) {
-        const newGroup = document.createElement("div");
-        newGroup.classList.add("weight-group");
-
-        newGroup.innerHTML = `
-            <input type="text" name="weights[]" placeholder="Enter weight" required />
-            <button type="button" class="btn-add-weight">+</button>
-            <button type="button" class="btn-remove-weight">-</button>
+        const div = document.createElement("div");
+        div.classList.add("image-group");
+        div.innerHTML = `
+            <input type="file" name="images[]" accept="image/*" required />
+            <input type="radio" name="main_image" value="${imageIndex}" ${imageIndex === 1 ? "checked" : ""}/> Main
+            <button type="button" class="btn-remove-image">-</button>
         `;
-
-        weightsContainer.appendChild(newGroup);
+        imagesContainer.appendChild(div);
+        imageIndex++;
     }
 
-    if (e.target.classList.contains("btn-remove-weight")) {
-        e.target.parentElement.remove();
+    window.removeImage = function (btn) {
+        btn.parentElement.remove();
     }
+
+    imagesContainer?.addEventListener("click", function (e) {
+        if (e.target.classList.contains("btn-remove-image")) removeImage(e.target);
+    });
 });
-
-// ---------- Category & Subcategory Buttons ----------
-document.getElementById("btn-add_category").addEventListener("click", () => toggleBox("category-input-box"));
-document.getElementById("btn-cancel-category").addEventListener("click", () => toggleBox("category-input-box", false));
-document.getElementById("btn-save-category").addEventListener("click", saveCategory);
-
-document.getElementById("btn-add_subcategory").addEventListener("click", () => toggleBox("subcategory-input-box"));
-document.getElementById("btn-cancel-subcategory").addEventListener("click", () => toggleBox("subcategory-input-box", false));
-document.getElementById("btn-save-subcategory").addEventListener("click", saveSubcategory);
-
-document.getElementById("category").addEventListener("change", e => loadSubcategories(e.target.value));
