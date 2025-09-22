@@ -90,23 +90,44 @@ def add_product(request):
         category_id = request.POST.get("category")
         subcategory_ids = request.POST.getlist("subcategories")
         weights = request.POST.getlist("weights[]")
-        prices = request.POST.getlist("prices[]")
+        prices = request.POST.getlist("weight_prices[]")
         images = request.FILES.getlist("images[]")
+        main_index = int(request.POST.get("main_image", 0))
 
-        product = Product.objects.create(name=name, description=description)
+        # Create product
+        if hasattr(Product, "category"):  # Product has category FK
+            category = BakeryCategory.objects.get(id=category_id)
+            product = Product.objects.create(
+                name=name,
+                description=description,
+                category=category
+            )
+        else:
+            product = Product.objects.create(
+                name=name,
+                description=description
+            )
+
+        if hasattr(product, "subcategories"):
+            product.subcategories.set(subcategory_ids)
 
         # Add weights
         for w, p in zip(weights, prices):
             if w.strip() and p.strip():
-                Weight.objects.create(product=product, weight=w.strip(), price=p.strip())
+                Weight.objects.create(product=product, weight=w.strip(), price=p)
 
         # Add images
-        for img in images:
-            ProductImages.objects.create(product=product, image=img)
+        for idx, img in enumerate(images):
+            ProductImages.objects.create(
+                product=product,
+                image=img,
+                is_main=(idx == main_index)
+            )
 
         return redirect("our_products")
 
     return render(request, "admin/add_product.html", {"categories": categories})
+
 
 # ----------------------------
 # All Products
