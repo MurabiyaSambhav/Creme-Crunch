@@ -1,6 +1,10 @@
-
+{% extends "admin/admin_base.html" %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/add_products.css' %}">
+
+{% block title %}Add Product | Admin Panel{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_css/add_products.css' %}">
 
 <div class="form-container">
     <h2>Add Bakery Product</h2>
@@ -11,54 +15,42 @@
         <label for="name">Product Name:</label>
         <input type="text" id="name" name="name" required />
 
-        <!-- Price -->
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" step="0.01" required />
-
-        <!-- Weights -->
-        <label>Weight:</label>
+        <!-- Weights + Prices -->
+        <label>Weights & Prices:</label>
         <div id="weights-container">
             <div class="weight-group">
-                <input type="text" name="weights[]" placeholder="Enter weight" required />
+                <input type="text" name="weights[]" placeholder="Weight (e.g. 250g, 1kg)" required />
+                <input type="number" name="weight_prices[]" placeholder="Price (₹)" step="0.01" required />
                 <button type="button" class="btn-add-weight">+</button>
             </div>
         </div>
 
         <!-- Category -->
         <label for="category">Category:</label>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; gap:6px; align-items:center;">
-                <select id="category" name="category" required>
-                    <option value="">-- Select Category --</option>
-                    {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" id="btn-add_category">+ Add Category</button>
-            </div>
-            <div id="category-input-box" style="display:none; gap:6px; margin-top:6px;">
-                <input type="text" id="new-category" placeholder="New category name" />
-                <button type="button" id="btn-save-category">Save</button>
-                <button type="button" id="btn-cancel-category">Cancel</button>
-            </div>
+        <div class="category-wrapper">
+            <select id="category" name="category" required>
+                <option value="">-- Select Category --</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.category_name }}</option>
+                {% endfor %}
+            </select>
         </div>
 
+        <!-- Subcategories -->
+        <label for="subcategories">Subcategories:</label>
+        <select id="subcategories" name="subcategories" multiple>
+            <option value="">-- Select a category first --</option>
+        </select>
 
-        <!-- Subcategory -->
-        <label>Subcategories (optional):</label>
-        <div id="subcategory-container">
-            <p style="color:gray;">Select a category first</p>
-        </div>
-        <button type="button" id="btn-add_subcategory">+ Add Subcategory</button>
-        <div id="subcategory-input-box" style="display:none; gap:6px; margin-top:6px;">
-            <input type="text" id="new-subcategory" placeholder="New subcategory name" />
-            <button type="button" id="btn-save-subcategory">Save</button>
-            <button type="button" id="btn-cancel-subcategory">Cancel</button>
-        </div>
+
+        <div id="selected-subcategories" class="selected-tags"></div>
+
+        <!-- Product Images -->
         <label>Product Images:</label>
         <div id="images-container">
             <div class="image-group">
                 <input type="file" name="images[]" accept="image/*" required />
+                <input type="radio" name="main_image" value="0" checked /> Main
                 <button type="button" onclick="addImage()">+</button>
             </div>
         </div>
@@ -73,3 +65,4 @@
 </div>
 
 <script src="{% static 'js/add_product.js' %}"></script>
+{% endblock %}
