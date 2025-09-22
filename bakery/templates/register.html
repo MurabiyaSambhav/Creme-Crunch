@@ -1,22 +1,30 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/register.css' %}">
-<form id="registerFormInner" method="POST">
+
+<form id="registerFormInner" class="form-card" method="POST">
   {% csrf_token %}
-  <div class="mb-3">
-    <input type="text" name="username" placeholder="Username" class="w-full border rounded px-3 py-2" required>
+  
+  <div class="form-group">
+    <input type="text" name="username" placeholder="Username" class="form-input" required>
   </div>
-  <div class="mb-3">
-    <input type="email" name="email" placeholder="Email" class="w-full border rounded px-3 py-2" required>
+  
+  <div class="form-group">
+    <input type="email" name="email" placeholder="Email" class="form-input" required>
   </div>
-  <div class="mb-3">
-    <input type="password" name="password" placeholder="Password" class="w-full border rounded px-3 py-2" required>
+
+  <div class="form-group">
+    <input type="password" name="password" placeholder="Password" class="form-input" required>
   </div>
-  <div class="mb-3">
-    <input type="text" name="phone" placeholder="Phone" class="w-full border rounded px-3 py-2" required>
+  
+  <div class="form-group">
+    <input type="text" name="phone" placeholder="Phone" class="form-input" required>
   </div>
-  <div class="mb-3">
-    <input type="text" name="address" placeholder="Address" class="w-full border rounded px-3 py-2" required>
+  
+  <div class="form-group">
+    <input type="text" name="address" placeholder="Address" class="form-input" required>
   </div>
-  <button type="submit" class="w-full bg-green-600 text-white py-2 rounded">Register</button>
+  
+  <button type="submit" class="form-btn">Register</button>
 </form>
+
 <script src="{% static 'js/register.js' %}"></script>

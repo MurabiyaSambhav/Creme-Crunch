@@ -5,26 +5,20 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 import os
 
-# ----------------------------  
-# Custom User
-# ----------------------------
 class CustomUser(AbstractUser):
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
-    created_at = models.DateTimeField(default=timezone.now)  # Migration-safe
+    created_at = models.DateTimeField(default=timezone.now)  
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.username
+    
 
-
-# ----------------------------
-# Product & Related Models
-# ----------------------------
 class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)  # Migration-safe
+    created_at = models.DateTimeField(default=timezone.now)  
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -35,7 +29,7 @@ class Weight(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="weights")
     weight = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    created_at = models.DateTimeField(default=timezone.now)  # Migration-safe
+    created_at = models.DateTimeField(default=timezone.now)  
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -49,7 +43,7 @@ class ProductImages(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to="products/")
     is_main = models.BooleanField(default=False)
-    created_at = models.DateTimeField(default=timezone.now)  # Migration-safe
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
