@@ -1,10 +1,10 @@
 function attachListeners() {
     document.querySelectorAll('input[name="category"]').forEach(radio => {
         radio.addEventListener('change', function () {
-            let categoryName = this.value; // e.g., "Sugar free"
+            let categoryName = this.value; 
 
-            // Convert spaces to underscores or hyphens for a clean URL
-            let urlCategory = categoryName.replace(/\s+/g, '_'); // Sugar free -> Sugar_free
+            
+            let urlCategory = categoryName.replace(/\s+/g, '_'); 
 
             // Update the browser URL without reloading
             const newUrl = `${window.location.pathname}?category=${urlCategory}`;

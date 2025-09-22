@@ -30,23 +30,24 @@
                 <div class="category-option">
                     <label>
                         <!-- Use category name as value -->
-                        <input type="radio" name="category" value="{{ category.name }}"
-                            {% if selected_category == category.name or parent_category == category.id %}checked{% endif %}>
-                        <span class="custom-radio {% if selected_category == category.name or parent_category == category.id %}active{% endif %}"></span>
+                        <input type="radio" name="category" value="{{ category.id }}"
+                            {% if selected_category and selected_category.id == category.id or parent_category == category.id %}checked{% endif %}>
+                        <span class="custom-radio {% if selected_category and selected_category.id == category.id %}active{% endif %}"></span>
                         <span class="radio-label">{{ category.name }}</span>
                     </label>
                 </div>
 
                 <!-- Subcategories -->
                 {% if parent_category == category.id and subcategories %}
-                {% comment %} {% if selected_category == category.id and subcategories %} {% endcomment %}
                     <div class="subcategory-box">
                         {% for sub in subcategories %}
                             <div class="subcategory-option">
                                 <label>
                                     <!-- Use subcategory name as value -->
-                                    <input type="radio" name="category" value="{{ sub.name }}"
-                                        {% if selected_category == sub.name %}checked{% endif %}>
+                                    <input type="radio" name="category" value="{{ sub.id }}"
+                                        {% if selected_category and selected_category.id == sub.id %}checked{% endif %}>
+                                    <span class="radio {% if selected_category and selected_category.id == sub.id %}active{% endif %}"></span>
+
                                     <span>{{ sub.name }}</span>
                                 </label>
                             </div>
@@ -75,6 +76,51 @@
             <p>No products available.</p>
         {% endfor %}
     </div>
+</div>
+<form method="get" id="sort-form">
+    <select name="sort" id="weight" onchange="document.getElementById('sort-form').submit()">
+        <option value="">Sort by</option>
+        <option value="popularity" {% if request.GET.sort == "popularity" %}selected{% endif %}>Sort by popularity</option>
+        <option value="rating" {% if request.GET.sort == "rating" %}selected{% endif %}>Sort by average rating</option>
+        <option value="latest" {% if request.GET.sort == "latest" %}selected{% endif %}>Sort by latest</option>
+        <option value="price_low" {% if request.GET.sort == "price_low" %}selected{% endif %}>Sort by price: low to high</option>
+        <option value="price_high" {% if request.GET.sort == "price_high" %}selected{% endif %}>Sort by price: high to low</option>
+    </select>
+
+    {% if selected_category %}
+        <input type="hidden" name="category" value="{{ selected_category.id }}">
+    {% endif %}
+    {% if query %}
+        <input type="hidden" name="q" value="{{ query }}">
+    {% endif %}
+</form>
+<div class="results-count">
+    {% if total_results > 0 %}
+        Showing {{ start_index }}–{{ end_index }} of {{ total_results }} results
+    {% else %}
+        No products found
+    {% endif %}
+</div>
+
+
+<div class="pagination">
+    {% if products.has_previous %}
+        <a href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}">Previous</a>
+    {% endif %}
+
+    {% for page_num in page_range %}
+        {% if page_num == "..." %}
+            <span class="dots">...</span>
+        {% elif page_num == products.number %}
+            <span class="active">{{ page_num }}</span>
+        {% else %}
+            <a href="?page={{ page_num }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}">{{ page_num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if products.has_next %}
+        <a href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}">Next</a>
+    {% endif %}
 </div>
 
 <!-- JS -->

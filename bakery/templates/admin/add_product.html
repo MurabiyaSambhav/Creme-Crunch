@@ -54,25 +54,6 @@
             <button type="button" id="btn-save-subcategory">Save</button>
             <button type="button" id="btn-cancel-subcategory">Cancel</button>
         </div>
-
-        <!-- Description -->
-        <div style="display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; gap:6px; align-items:center;">
-                <select id="category" name="category" required>
-                    <option value="">-- Select Category --</option>
-                    {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" id="btn-add_category">+ Add Category</button>
-            </div>
-            <div id="category-input-box" style="display:none; gap:6px; margin-top:6px;">
-                <input type="text" id="new-category" placeholder="New category name" />
-                <button type="button" id="btn-save-category">Save</button>
-                <button type="button" id="btn-cancel-category">Cancel</button>
-            </div>
-        </div>
-
     
         <label>Product Images:</label>
         <div id="images-container">
