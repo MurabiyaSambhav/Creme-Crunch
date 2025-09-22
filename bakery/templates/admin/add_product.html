@@ -28,7 +28,7 @@
         <!-- Category -->
         <label for="category">Category:</label>
         <div class="category-wrapper">
-            <select id="category" name="category" required>
+            <select id="category" name="category">
                 <option value="">-- Select Category --</option>
                 {% for category in categories %}
                     <option value="{{ category.id }}">{{ category.category_name }}</option>
@@ -41,15 +41,14 @@
         <select id="subcategories" name="subcategories" multiple>
             <option value="">-- Select a category first --</option>
         </select>
-
-
         <div id="selected-subcategories" class="selected-tags"></div>
 
         <!-- Product Images -->
         <label>Product Images:</label>
         <div id="images-container">
             <div class="image-group">
-                <input type="file" name="images[]" accept="image/*" required />
+                <input type="file" name="images[]" accept="image/*" onchange="previewImage(this)" required />
+                <img class="preview" style="display:none; max-width:100px; margin-top:5px;" />
                 <input type="radio" name="main_image" value="0" checked /> Main
                 <button type="button" onclick="addImage()">+</button>
             </div>
@@ -64,5 +63,6 @@
     </form>
 </div>
 
-<script src="{% static 'js/add_product.js' %}"></script>
+<script src="{% static 'js/add_product.js' %}" defer></script>
+
 {% endblock %}

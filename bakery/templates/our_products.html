@@ -50,30 +50,30 @@
         </form>
     </div>
 
-    <!-- Products -->
-<div class="products-box" id="products-box">
-    {% for product in products %}
-        <div class="product-card">
-            {% if product.main_image %}
-                <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
-            {% else %}
-                <p>No image available.</p>
-            {% endif %}
+        <!-- Products -->
+    <div class="products-box" id="products-box">
+        {% for product in products %}
+            <div class="product-card">
+                {% if product.main_image %}
+                    <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <p>No image available.</p>
+                {% endif %}
 
-            <h3>{{ product.name }}</h3>
+                <h3>{{ product.name }}</h3>
 
-            {% if product.first_weight %}
-                <p>₹{{ product.first_weight.price }}</p>
-            {% else %}
-                <p>Price not available</p>
-            {% endif %}
+                {% if product.first_weight %}
+                    <p>₹{{ product.first_weight.price }}</p>
+                {% else %}
+                    <p>Price not available</p>
+                {% endif %}
 
-            <a href="{% url 'add_cart' %}" class="add-cart-btn">Add to Cart</a>
-        </div>
-    {% empty %}
-        <p>No products available.</p>
-    {% endfor %}
-</div>
+                <a href="{% url 'add_cart' %}?product_id={{ product.id }}" class="add-cart-btn">Add to Cart</a>
+            </div>
+        {% empty %}
+            <p>No products available.</p>
+        {% endfor %}
+    </div>
 
 <!-- Sort Form -->
 <form method="get" id="sort-form">
