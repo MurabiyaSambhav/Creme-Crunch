@@ -1,9 +1,19 @@
-/* Form card */
+Form card
 
 /* Form group spacing */
 .form-group {
+    
     margin-bottom: 15px;
 }
+/* Labels */
+.form-card label {
+    display: block;
+    margin-bottom: 7px; 
+    font-weight: bold;
+    color: #333;
+}
+
+
 
 /* Inputs */
 .form-input {
@@ -18,16 +28,17 @@
 
 /* Input focus effect */
 .form-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 5px rgba(59,130,246,0.5);
+    border-color: #0d1522;
+    box-shadow: 0 0 5px rgba(20, 21, 21, 0.5);
     outline: none;
 }
 
 /* Submit button */
 .form-btn {
+     margin-top: 15px;
     width: 100%;
     padding: 12px;
-    background-color: #3b82f6;
+    background-color: #8e3b3b;
     color: #fff;
     font-size: 16px;
     font-weight: bold;
@@ -38,12 +49,6 @@
 }
 
 .form-btn:hover {
-    background-color: #2563eb;
+     background-color: #732a2a;
 }
 
-/* Optional error message styling */
-.error-message {
-    font-size: 14px;
-    color: red;
-    margin-bottom: 10px;
-}

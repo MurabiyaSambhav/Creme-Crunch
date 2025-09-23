@@ -10,6 +10,8 @@ from django.http import JsonResponse
 from django.db.models import Q
 import re, json
 
+import re
+from django.contrib import messages
 
 
 CustomUser = get_user_model()
@@ -41,8 +43,6 @@ def register(request):
         return JsonResponse({"success": False, "message": "Invalid username."})
     if not re.match(r"^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$", email):
         return JsonResponse({"success": False, "message": "Invalid email."})
-    if not re.match(r"^\d{10}$", phone):
-        return JsonResponse({"success": False, "message": "Phone must be 10 digits."})
 
     if CustomUser.objects.filter(email=email).exists():
         return JsonResponse({"success": False, "message": "Email already exists"})
@@ -244,9 +244,9 @@ def contact(request):
 # ----------------------------
 # About Us
 # ----------------------------
-
 def about_us(request):
     categories = BakeryCategory.objects.filter(parent__isnull=True)
+    success = False
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
@@ -254,8 +254,14 @@ def about_us(request):
         message = request.POST.get('message')
         if len(message) <= 180:
             ContactForm.objects.create(name=name, email=email, phone=phone, message=message)
-            return redirect('about_us')
-    return render(request, 'about_us.html', {'categories': categories})
+            return JsonResponse({"success": True, "message": "Thank you for contacting us, we will be in touch shortly."})
+        else:
+            return JsonResponse({"success": False, "message": "Message too long."})
+    return render(request, 'about_us.html', {'categories': categories, 'success': success})
+
+def contact_detail(request):
+    detail = ContactForm.objects.all()
+    return render(request, 'admin/contact_details.html', {'detail': detail})
 
 # ----------------------------
 # Add to Cart
@@ -380,6 +386,13 @@ def all_payment(request):
 def contact(request):
     categories = BakeryCategory.objects.all()
     return render(request, "contact.html", {"categories": categories})
+
+def list(request):
+    products = Product.objects.all().prefetch_related('weights', 'images')
+    categories = BakeryCategory.objects.prefetch_related('subcategories')
+
+    return render(request, 'admin/master_list.html',{'products': products,'categories': categories,})
+
 
 
 
