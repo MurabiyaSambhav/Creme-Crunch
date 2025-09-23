@@ -2,12 +2,12 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, get_user_model
 from django.db import IntegrityError
 from django.conf import settings
-from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactForm, ProductImages
 from django.shortcuts import render, redirect
-from django.core.paginator import Paginator
 from django.urls import reverse
-import re, json
-
+from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactForm, ProductImages
+from django.core.paginator import Paginator
+import re
+from django.contrib import messages
 
 
 CustomUser = get_user_model()
@@ -39,9 +39,7 @@ def register(request):
         return JsonResponse({"success": False, "message": "Invalid username."})
     if not re.match(r"^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$", email):
         return JsonResponse({"success": False, "message": "Invalid email."})
-    if not re.match(r"^\d{10}$", phone):
-        return JsonResponse({"success": False, "message": "Phone must be 10 digits."})
-
+ 
     if CustomUser.objects.filter(email=email).exists():
         return JsonResponse({"success": False, "message": "Email already exists"})
     if CustomUser.objects.filter(username=username).exists():
@@ -53,10 +51,6 @@ def register(request):
         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
 
     return JsonResponse({"success": True, "message": "Registration successful! Please login."})
-
-# ----------------------------
-# Login & Logout
-# ----------------------------
 
 def login(request):
     if request.method == "POST":
@@ -92,26 +86,14 @@ def add_product(request):
         category_id = request.POST.get("category")
         subcategory_ids = request.POST.getlist("subcategories")
         weights = request.POST.getlist("weights[]")
-        prices = request.POST.getlist("weight_prices[]")
+        prices = request.POST.getlist("prices[]")
         images = request.FILES.getlist("images[]")
-        main_index = int(request.POST.get("main_image", 0))
 
         # Create product
-        if hasattr(Product, "category"):  # Product has category FK
-            category = BakeryCategory.objects.get(id=category_id)
-            product = Product.objects.create(
-                name=name,
-                description=description,
-                category=category
-            )
-        else:
-            product = Product.objects.create(
-                name=name,
-                description=description
-            )
-
-        if hasattr(product, "subcategories"):
-            product.subcategories.set(subcategory_ids)
+        product = Product.objects.create(
+            name=name,
+            description=description,
+        )
 
         # ✅ Add weights
         for w, p in zip(weights, prices):
@@ -119,15 +101,15 @@ def add_product(request):
                 Weight.objects.create(
                     product=product,
                     weight=w.strip(),
-                    price=float(p.strip())  # convert string -> decimal
+                    price=float(p.strip()) 
                 )
 
-        # Add images
-        for idx, img in enumerate(images):
+        # ✅ Add images
+        for index, img in enumerate(images):
             ProductImages.objects.create(
                 product=product,
                 image=img,
-                is_main=(idx == main_index)
+                is_main=True if index == 0 else False   
             )
 
         return redirect("our_products")
@@ -135,28 +117,7 @@ def add_product(request):
     return render(request, "admin/add_product.html", {"categories": categories})
 
 
-# ----------------------------
-# All Products
-# ----------------------------
 
-def our_products(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)
-    products = Product.objects.all().prefetch_related('images', 'weights')
-
-    # Add a main_image attribute for the template
-    for product in products:
-        main_image = product.images.filter(is_main=True).first()
-        product.main_image = main_image
-
-    return render(request, "our_products.html", {
-        "categories": categories,
-        "products": products,
-        "MEDIA_URL": settings.MEDIA_URL
-    })
-
-# ----------------------------
-# Categories & Subcategories
-# ----------------------------
 def add_category(request):
     if request.method == "POST":
         category_name = request.POST.get("name")
@@ -173,19 +134,13 @@ def get_subcategories(request, category_id):
     sub_list = [{"id": sub.id, "name": sub.subcategory_name} for sub in subs]
     return JsonResponse({"subcategories": sub_list})
 
-# ----------------------------
-# Contact & About
-# ----------------------------
 def contact(request):
     categories = BakeryCategory.objects.filter(parent__isnull=True)
     return render(request, 'contact.html', {'categories': categories})
 
-# ----------------------------
-# About Us
-# ----------------------------
-
 def about_us(request):
     categories = BakeryCategory.objects.filter(parent__isnull=True)
+    success = False
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
@@ -193,58 +148,17 @@ def about_us(request):
         message = request.POST.get('message')
         if len(message) <= 180:
             ContactForm.objects.create(name=name, email=email, phone=phone, message=message)
-            return redirect('about_us')
-    return render(request, 'about_us.html', {'categories': categories})
+            return JsonResponse({"success": True, "message": "Thank you for contacting us, we will be in touch shortly."})
+        else:
+            return JsonResponse({"success": False, "message": "Message too long."})
+    return render(request, 'about_us.html', {'categories': categories, 'success': success})
 
-# ----------------------------
-# Add to Cart
-# ----------------------------
+def contact_detail(request):
+    detail = ContactForm.objects.all()
+    return render(request, 'admin/contact_details.html', {'detail': detail})
 
 def add_cart(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        product_id = data.get('product_id')
-        weight_id = data.get('weight_id')
-        quantity = int(data.get('quantity', 1))
-
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=404)
-
-        # TODO: Add to cart logic
-        return JsonResponse({'status': 'success', 'message': 'Product added to cart'})
-
-    # GET request: show product page
-    product_id = request.GET.get('product_id')
-    if not product_id:
-        return redirect('home')
-
-    try:
-        product = Product.objects.prefetch_related('weights', 'images').get(id=product_id)
-        main_image = product.images.filter(is_main=True).first()
-
-        # Get all categories for selection (optional)
-        categories = BakeryCategory.objects.all()
-
-        # Get first weight (for default price)
-        first_weight = product.weights.first()
-    except Product.DoesNotExist:
-        return redirect('home')
-
-    return render(request, 'add_cart.html', {
-        'product': product,
-        'main_image': main_image,
-        'categories': categories,
-        'first_weight': first_weight
-    })
-
-# ----------------------------
-# Payment
-# ----------------------------
-
-def payment(request):
-    return render(request, 'payment.html')
+    return render(request, 'admin/add_cart.html')
 
 def admin_base(request):
     return render(request, 'admin/admin_base.html')
@@ -272,11 +186,9 @@ def get_page_range(paginator, current_page, max_pages=5):
     # Always show first page
     page_range.append(1)
 
-    # Add left dots
     if current_page > 3:
         page_range.append("...")
 
-    # Pages around current page
     start = max(2, current_page - 1)
     end = min(total_pages - 1, current_page + 1)
     page_range.extend(range(start, end + 1))
@@ -292,8 +204,8 @@ def get_page_range(paginator, current_page, max_pages=5):
 
 def our_products(request):
     query = request.GET.get('q')
-    category_id = request.GET.get('category')       # category radio
-    subcategory_id = request.GET.get('subcategory') # subcategory radio
+    category_id = request.GET.get('category')      
+    subcategory_id = request.GET.get('subcategory') 
     sort_option = request.GET.get('sort')
 
     categories = BakeryCategory.objects.filter(parent__isnull=True)
@@ -309,9 +221,9 @@ def our_products(request):
         try:
             selected_category = BakeryCategory.objects.get(id=category_id)
             parent_category = selected_category.id
-            # filter products by subcategories of this category
+        
             sub_ids = subcategories.filter(category=selected_category).values_list('id', flat=True)
-            products = products.filter(weights__product__id__in=sub_ids)  # simulate filtering
+            products = products.filter(weights__product__id__in=sub_ids)  
         except BakeryCategory.DoesNotExist:
             selected_category = None
 
@@ -360,3 +272,14 @@ def our_products(request):
         "end_index": products_page.end_index(),
     }
     return render(request, "our_products.html", context)
+def payment(request):
+    return render(request, 'payment.html')
+
+
+def list(request):
+    products = Product.objects.all().prefetch_related('weights', 'images')
+    categories = BakeryCategory.objects.prefetch_related('subcategories')
+
+    return render(request, 'admin/master_list.html',{'products': products,'categories': categories,})
+
+

@@ -34,3 +34,8 @@ function attachListeners() {
 
 // Initial call
 document.addEventListener("DOMContentLoaded", attachListeners);
+document.querySelectorAll('input[name="category"], input[name="subcategory"]').forEach(input => {
+    input.addEventListener('change', function() {
+        document.getElementById('category-form').submit();
+    });
+});

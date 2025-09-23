@@ -1,0 +1,81 @@
+{% extends "admin/admin_base.html" %}
+{% load static %}
+
+{% block title %}Add Category | Admin Panel{% endblock %}
+
+{% block content %}
+<h1>All Records</h1>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <tr>
+        <th>Sr. No.</th>
+        <th>ID</th>
+        <th>Product Name</th>
+        <th>Category</th>
+        <th>Subcategories</th>
+        <th>Weights & Prices</th>
+        <th>Images</th>
+        <th>Description</th>
+        <th>Action</th>
+    </tr>
+
+    {% for product in products %}
+    <tr>
+        <td>{{ forloop.counter }}</td> <!-- Serial number -->
+        <td>{{ product.id }}</td>
+        <td>{{ product.name }}</td>
+
+        <!-- Category -->
+        <td>
+            {% if product.category %}
+                {{ product.category.category_name }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+
+        <!-- Subcategories -->
+        <td>
+            {% if product.category %}
+                {% for sub in product.category.subcategories.all %}
+                    {{ sub.subcategory_name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+
+        <!-- Weights & Prices -->
+        <td>
+            {% for w in product.weights.all %}
+                {{ w.weight }} - ₹{{ w.price }}<br>
+            {% empty %}
+                -
+            {% endfor %}
+        </td>
+
+        <!-- Images -->
+        <td>
+            {% for img in product.images.all %}
+                {% if img.is_main %}{% endif %}
+                <img src="{{ img.image.url }}" width="50" height="50"><br>
+            {% empty %}
+                No image
+            {% endfor %}
+        </td>
+
+        <!-- Description -->
+        <td>{{ product.description }}</td>
+
+        <!-- Action -->
+        <td>
+            <a href="">Edit</a> |
+            <a href="">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<!-- Similarly for subcategories, users, contacts -->
+{% endblock %}
