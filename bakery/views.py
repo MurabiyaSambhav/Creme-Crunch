@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.urls import reverse
 from django.http import JsonResponse
+from django.db.models import Q
 import re, json
 
 
@@ -136,6 +137,7 @@ def add_product(request):
 # All Products
 # ----------------------------
 
+
 def our_products(request):
     query = request.GET.get("q")
     category_id = request.GET.get("category")
@@ -150,23 +152,23 @@ def our_products(request):
     selected_subcategory = None
     parent_category = None
 
-    # Filter by category
-    if category_id:
+    # Filter by subcategory first (ManyToMany)
+    if subcategory_id:
+        try:
+            selected_subcategory = BakerySubCategory.objects.get(id=subcategory_id)
+            parent_category = selected_subcategory.category.id
+            products = products.filter(subcategories=selected_subcategory).distinct()
+        except BakerySubCategory.DoesNotExist:
+            selected_subcategory = None
+
+    # Filter by category only if no subcategory is selected
+    elif category_id:
         try:
             selected_category = BakeryCategory.objects.get(id=category_id)
             parent_category = selected_category.id
             products = products.filter(category=selected_category)
         except BakeryCategory.DoesNotExist:
             selected_category = None
-
-    # Filter by subcategory
-    if subcategory_id:
-        try:
-            selected_subcategory = BakerySubCategory.objects.get(id=subcategory_id)
-            parent_category = selected_subcategory.category.id
-            products = products.filter(subcategory=selected_subcategory)
-        except BakerySubCategory.DoesNotExist:
-            selected_subcategory = None
 
     # Search
     if query:
@@ -179,13 +181,19 @@ def our_products(request):
         products = products.order_by("-weights__price")
     elif sort_option == "latest":
         products = products.order_by("-id")
+    elif sort_option == "popularity":
+        # Implement your popularity logic here if needed
+        pass
+    elif sort_option == "rating":
+        # Implement your rating logic here if needed
+        pass
 
     # Pagination
     paginator = Paginator(products.distinct(), 9)
     page_number = request.GET.get("page")
     products_page = paginator.get_page(page_number)
 
-    # Add main_image & first_weight
+    # Attach main image & first weight for each product
     for p in products_page:
         p.main_image = p.images.filter(is_main=True).first()
         p.first_weight = p.weights.first()
@@ -203,7 +211,9 @@ def our_products(request):
         "start_index": products_page.start_index(),
         "end_index": products_page.end_index(),
     }
+
     return render(request, "our_products.html", context)
+
 
 # ----------------------------
 # Categories & Subcategories
@@ -332,6 +342,30 @@ def get_page_range(paginator, current_page, max_pages=5):
     page_range.append(total_pages)
 
     return page_range
+
+# ----------------------------
+# Product Suggestions (AJAX) 
+# ----------------------------
+
+def product_suggestions(request):
+    query = request.GET.get('q', '')
+    suggestions = []
+
+    if query:
+        # Search in product names or category names
+        products = Product.objects.filter(
+            Q(name__icontains=query) | Q(category__category_name__icontains=query)
+        ).distinct()[:10]  # limit suggestions to 10
+
+        for product in products:
+            suggestions.append({
+                'id': product.id,
+                'name': product.name,
+                'category': product.category.category_name if product.category else ''
+            })
+
+    return JsonResponse({'results': suggestions})
+
 
 
 def admin_base(request):
