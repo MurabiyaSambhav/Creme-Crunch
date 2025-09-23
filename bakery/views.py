@@ -245,7 +245,7 @@ def contact(request):
 # About Us
 # ----------------------------
 def about_us(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)
+    categories = BakeryCategory.objects.all()
     success = False
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -268,6 +268,7 @@ def contact_detail(request):
 # ----------------------------
 
 def add_cart(request):
+
     if request.method == "POST":
         data = json.loads(request.body)
         product_id = data.get('product_id')
