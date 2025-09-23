@@ -1,46 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // ===============================
-    // CSRF helper
-    // ===============================
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            for (const cookie of document.cookie.split(';')) {
-                const trimmed = cookie.trim();
-                if (trimmed.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
-
-    function postJSON(url, data) {
-        return fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken
-            },
-            body: JSON.stringify(data)
-        }).then(res => res.json());
-    }
-
-    // ===============================
-    // Toggle Input Boxes
-    // ===============================
-    function toggleBox(id, show = true) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.style.display = show ? "flex" : "none";
-            if (!show) {
-                const input = el.querySelector("input");
-                if (input) input.value = "";
-            }
-        }
-    }
 
     // ===============================
     // Category / Subcategory
@@ -52,13 +10,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function loadSubcategories(categoryId) {
         if (!subSelect) return;
         subSelect.innerHTML = ""; // reset
-
         if (!categoryId) {
             subSelect.innerHTML = '<option value="">-- Select a category first --</option>';
             selectedBox.innerHTML = "";
+            updateSelectedSubcategoriesInputs();
             return;
         }
-
         fetch(`/get_subcategories/${categoryId}/`)
             .then(res => res.json())
             .then(data => {
@@ -70,12 +27,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     subSelect.innerHTML = '<option value="">-- No subcategories available --</option>';
                 }
-                selectedBox.innerHTML = ""; // clear selected tags
+                selectedBox.innerHTML = "";
+                updateSelectedSubcategoriesInputs();
             })
             .catch(err => {
                 console.error("Error loading subcategories:", err);
                 subSelect.innerHTML = '<option value="">-- Error loading subcategories --</option>';
             });
+    }
+
+    function updateSelectedSubcategoriesInputs() {
+        // Remove old hidden inputs
+        document.querySelectorAll('.hidden-sub').forEach(el => el.remove());
+
+        // Add hidden inputs for each selected subcategory
+        if (!subSelect) return;
+        Array.from(subSelect.selectedOptions).forEach(option => {
+            if (option.value) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'subcategories'; // backend receives list of IDs
+                input.value = option.value;
+                input.classList.add('hidden-sub');
+                document.querySelector('form').appendChild(input);
+            }
+        });
     }
 
     if (subSelect && selectedBox) {
@@ -87,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 tag.innerHTML = `${option.text} <button type="button" data-id="${option.value}" class="remove-sub">x</button>`;
                 selectedBox.appendChild(tag);
             });
+            updateSelectedSubcategoriesInputs(); // update hidden inputs
         });
 
         selectedBox.addEventListener("click", function (e) {
@@ -96,6 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (opt.value === id) opt.selected = false;
                 });
                 e.target.parentElement.remove();
+                updateSelectedSubcategoriesInputs(); // update hidden inputs
             }
         });
     }
@@ -113,13 +91,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 newGroup.classList.add("weight-group");
                 newGroup.innerHTML = `
                     <input type="text" name="weights[]" placeholder="Weight (e.g. 250g, 1kg)" required />
-                    <input type="number" name="weight_prices[]" placeholder="Price (₹)" step="0.01" required />
+                    <input type="number" name="prices[]" placeholder="Price (₹)" step="0.01" required />
                     <button type="button" class="btn-add-weight">+</button>
                     <button type="button" class="btn-remove-weight">-</button>
                 `;
                 weightsContainer.appendChild(newGroup);
             }
-
             if (e.target.classList.contains("btn-remove-weight")) {
                 e.target.parentElement.remove();
             }
@@ -127,18 +104,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===============================
-    // Images (Main + Sub)
+    // Images (Main + Preview + Remove)
     // ===============================
     let imageIndex = 1;
     const imagesContainer = document.getElementById("images-container");
 
+    window.previewImage = function (input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                let img = input.parentElement.querySelector(".preview");
+                img.src = e.target.result;
+                img.style.display = "block";
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
     window.addImage = function () {
         if (!imagesContainer) return;
-
         const div = document.createElement("div");
         div.classList.add("image-group");
         div.innerHTML = `
-            <input type="file" name="images[]" accept="image/*" required />
+            <input type="file" name="images[]" accept="image/*" onchange="previewImage(this)" required />
+            <img class="preview" style="display:none; max-width:100px; margin-top:5px;" />
             <input type="radio" name="main_image" value="${imageIndex}" ${imageIndex === 1 ? "checked" : ""}/> Main
             <button type="button" class="btn-remove-image">-</button>
         `;
@@ -153,4 +143,5 @@ document.addEventListener("DOMContentLoaded", function () {
     imagesContainer?.addEventListener("click", function (e) {
         if (e.target.classList.contains("btn-remove-image")) removeImage(e.target);
     });
+
 });

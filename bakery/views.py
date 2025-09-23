@@ -6,6 +6,8 @@ from .models import BakeryCategory, BakerySubCategory, Product, Weight, ContactF
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.urls import reverse
+from django.http import JsonResponse
+from django.db.models import Q
 import re, json
 
 
@@ -19,7 +21,7 @@ def base(request):
     return render(request, "base.html")
 
 def home(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.all()
     return render(request, "home.html", {"categories": categories})
 
 # ----------------------------
@@ -85,41 +87,37 @@ def logout(request):
 # Product Management
 # ----------------------------
 def add_product(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)
+    categories = BakeryCategory.objects.all()
+
     if request.method == "POST":
         name = request.POST.get("name")
         description = request.POST.get("description")
         category_id = request.POST.get("category")
-        subcategory_ids = request.POST.getlist("subcategories")
+        subcategory_ids = request.POST.getlist("subcategories")  # <-- multiple subcategories now
         weights = request.POST.getlist("weights[]")
-        prices = request.POST.getlist("weight_prices[]")
+        prices = request.POST.getlist("prices[]")
         images = request.FILES.getlist("images[]")
         main_index = int(request.POST.get("main_image", 0))
 
-        # Create product
-        if hasattr(Product, "category"):  # Product has category FK
-            category = BakeryCategory.objects.get(id=category_id)
-            product = Product.objects.create(
-                name=name,
-                description=description,
-                category=category
-            )
-        else:
-            product = Product.objects.create(
-                name=name,
-                description=description
-            )
+        # Create product with category
+        product = Product.objects.create(
+            name=name,
+            description=description,
+            category_id=category_id if category_id else None,
+        )
 
-        if hasattr(product, "subcategories"):
-            product.subcategories.set(subcategory_ids)
+        # Add subcategories (ManyToMany)
+        if subcategory_ids:
+            subcategories = BakerySubCategory.objects.filter(id__in=subcategory_ids)
+            product.subcategories.set(subcategories)
 
-        # ✅ Add weights
+        # Add weights
         for w, p in zip(weights, prices):
-            if w.strip() and p.strip():
+            if w.strip() and str(p).strip():
                 Weight.objects.create(
                     product=product,
                     weight=w.strip(),
-                    price=float(p.strip())  # convert string -> decimal
+                    price=float(p.strip())
                 )
 
         # Add images
@@ -139,20 +137,83 @@ def add_product(request):
 # All Products
 # ----------------------------
 
+
 def our_products(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)
-    products = Product.objects.all().prefetch_related('images', 'weights')
+    query = request.GET.get("q")
+    category_id = request.GET.get("category")
+    subcategory_id = request.GET.get("subcategory")
+    sort_option = request.GET.get("sort")
 
-    # Add a main_image attribute for the template
-    for product in products:
-        main_image = product.images.filter(is_main=True).first()
-        product.main_image = main_image
+    categories = BakeryCategory.objects.all()
+    subcategories = BakerySubCategory.objects.all()
+    products = Product.objects.all()
 
-    return render(request, "our_products.html", {
+    selected_category = None
+    selected_subcategory = None
+    parent_category = None
+
+    # Filter by subcategory first (ManyToMany)
+    if subcategory_id:
+        try:
+            selected_subcategory = BakerySubCategory.objects.get(id=subcategory_id)
+            parent_category = selected_subcategory.category.id
+            products = products.filter(subcategories=selected_subcategory).distinct()
+        except BakerySubCategory.DoesNotExist:
+            selected_subcategory = None
+
+    # Filter by category only if no subcategory is selected
+    elif category_id:
+        try:
+            selected_category = BakeryCategory.objects.get(id=category_id)
+            parent_category = selected_category.id
+            products = products.filter(category=selected_category)
+        except BakeryCategory.DoesNotExist:
+            selected_category = None
+
+    # Search
+    if query:
+        products = products.filter(name__icontains=query)
+
+    # Sorting
+    if sort_option == "price_low":
+        products = products.order_by("weights__price")
+    elif sort_option == "price_high":
+        products = products.order_by("-weights__price")
+    elif sort_option == "latest":
+        products = products.order_by("-id")
+    elif sort_option == "popularity":
+        # Implement your popularity logic here if needed
+        pass
+    elif sort_option == "rating":
+        # Implement your rating logic here if needed
+        pass
+
+    # Pagination
+    paginator = Paginator(products.distinct(), 9)
+    page_number = request.GET.get("page")
+    products_page = paginator.get_page(page_number)
+
+    # Attach main image & first weight for each product
+    for p in products_page:
+        p.main_image = p.images.filter(is_main=True).first()
+        p.first_weight = p.weights.first()
+
+    context = {
         "categories": categories,
-        "products": products,
-        "MEDIA_URL": settings.MEDIA_URL
-    })
+        "subcategories": subcategories,
+        "products": products_page,
+        "selected_category": selected_category,
+        "selected_subcategory": selected_subcategory,
+        "parent_category": parent_category,
+        "query": query,
+        "page_range": get_page_range(paginator, products_page.number),
+        "total_results": products.count(),
+        "start_index": products_page.start_index(),
+        "end_index": products_page.end_index(),
+    }
+
+    return render(request, "our_products.html", context)
+
 
 # ----------------------------
 # Categories & Subcategories
@@ -246,17 +307,9 @@ def add_cart(request):
 def payment(request):
     return render(request, 'payment.html')
 
-def admin_base(request):
-    return render(request, 'admin/admin_base.html')
-
-def all_payment(request):
-    return render(request, 'admin/all_payment.html')
-
-def contact(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)  
-
-    return render(request, 'contact.html',{'categories':categories})
-
+# ----------------------------
+# Pagination Helper
+# ----------------------------
 
 def get_page_range(paginator, current_page, max_pages=5):
     """
@@ -290,73 +343,44 @@ def get_page_range(paginator, current_page, max_pages=5):
 
     return page_range
 
-def our_products(request):
-    query = request.GET.get('q')
-    category_id = request.GET.get('category')       # category radio
-    subcategory_id = request.GET.get('subcategory') # subcategory radio
-    sort_option = request.GET.get('sort')
+# ----------------------------
+# Product Suggestions (AJAX) 
+# ----------------------------
 
-    categories = BakeryCategory.objects.filter(parent__isnull=True)
-    subcategories = BakerySubCategory.objects.all()
-    products = Product.objects.all()
+def product_suggestions(request):
+    query = request.GET.get('q', '')
+    suggestions = []
 
-    selected_category = None
-    selected_subcategory = None
-    parent_category = None
-
-    # Filter by category
-    if category_id:
-        try:
-            selected_category = BakeryCategory.objects.get(id=category_id)
-            parent_category = selected_category.id
-            # filter products by subcategories of this category
-            sub_ids = subcategories.filter(category=selected_category).values_list('id', flat=True)
-            products = products.filter(weights__product__id__in=sub_ids)  # simulate filtering
-        except BakeryCategory.DoesNotExist:
-            selected_category = None
-
-    # Filter by subcategory
-    if subcategory_id:
-        try:
-            selected_subcategory = BakerySubCategory.objects.get(id=subcategory_id)
-            parent_category = selected_subcategory.category.id
-            products = products.filter(name__icontains=selected_subcategory.subcategory_name)
-        except BakerySubCategory.DoesNotExist:
-            selected_subcategory = None
-
-    # Search
     if query:
-        products = products.filter(name__icontains=query)
+        # Search in product names or category names
+        products = Product.objects.filter(
+            Q(name__icontains=query) | Q(category__category_name__icontains=query)
+        ).distinct()[:10]  # limit suggestions to 10
 
-    # Sorting
-    if sort_option == "price_low":
-        products = products.order_by("weights__price")
-    elif sort_option == "price_high":
-        products = products.order_by("-weights__price")
-    elif sort_option == "latest":
-        products = products.order_by("-id")
+        for product in products:
+            suggestions.append({
+                'id': product.id,
+                'name': product.name,
+                'category': product.category.category_name if product.category else ''
+            })
 
-    # Pagination
-    paginator = Paginator(products.distinct(), 9)
-    page_number = request.GET.get('page')
-    products_page = paginator.get_page(page_number)
+    return JsonResponse({'results': suggestions})
 
-    # Add main_image & first_weight for template
-    for p in products_page:
-        p.main_image = p.images.filter(is_main=True).first()
-        p.first_weight = p.weights.first()
 
-    context = {
-        "categories": categories,
-        "subcategories": subcategories,
-        "products": products_page,
-        "selected_category": selected_category,
-        "selected_subcategory": selected_subcategory,
-        "parent_category": parent_category,
-        "query": query,
-        "page_range": get_page_range(paginator, products_page.number),
-        "total_results": products.count(),
-        "start_index": products_page.start_index(),
-        "end_index": products_page.end_index(),
-    }
-    return render(request, "our_products.html", context)
+
+def admin_base(request):
+    return render(request, 'admin/admin_base.html')
+
+def all_payment(request):
+    return render(request, 'admin/all_payment.html')
+
+# ----------------------------
+# Contact 
+# ----------------------------
+def contact(request):
+    categories = BakeryCategory.objects.all()
+    return render(request, "contact.html", {"categories": categories})
+
+
+
+
