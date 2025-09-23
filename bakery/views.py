@@ -20,7 +20,7 @@ def base(request):
     return render(request, "base.html")
 
 def home(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)  
+    categories = BakeryCategory.objects.all()
     return render(request, "home.html", {"categories": categories})
 
 # ----------------------------
@@ -85,30 +85,30 @@ def logout(request):
 # ----------------------------
 # Product Management
 # ----------------------------
-from django.shortcuts import render, redirect
-from .models import Product, Weight, ProductImages, BakeryCategory
-
 def add_product(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)
+    categories = BakeryCategory.objects.all()
 
     if request.method == "POST":
         name = request.POST.get("name")
         description = request.POST.get("description")
-        subcategory_ids = request.POST.getlist("subcategories")
+        category_id = request.POST.get("category")
+        subcategory_ids = request.POST.getlist("subcategories")  # <-- multiple subcategories now
         weights = request.POST.getlist("weights[]")
-        prices = request.POST.getlist("prices[]")  # match your frontend input name
+        prices = request.POST.getlist("prices[]")
         images = request.FILES.getlist("images[]")
         main_index = int(request.POST.get("main_image", 0))
 
-        # Create product (without category)
+        # Create product with category
         product = Product.objects.create(
             name=name,
-            description=description
+            description=description,
+            category_id=category_id if category_id else None,
         )
 
-        # Assign subcategories (if your Product model has many-to-many 'subcategories')
-        if subcategory_ids and hasattr(product, "subcategories"):
-            product.subcategories.set(subcategory_ids)
+        # Add subcategories (ManyToMany)
+        if subcategory_ids:
+            subcategories = BakerySubCategory.objects.filter(id__in=subcategory_ids)
+            product.subcategories.set(subcategories)
 
         # Add weights
         for w, p in zip(weights, prices):
@@ -127,38 +127,35 @@ def add_product(request):
                 is_main=(idx == main_index)
             )
 
-        return redirect("our_products")  # redirect to your product list page
+        return redirect("our_products")
 
     return render(request, "admin/add_product.html", {"categories": categories})
+
 
 # ----------------------------
 # All Products
 # ----------------------------
 
 def our_products(request):
-    query = request.GET.get('q')
-    category_id = request.GET.get('category')       # category radio
-    subcategory_id = request.GET.get('subcategory') # subcategory radio
-    sort_option = request.GET.get('sort')
+    query = request.GET.get("q")
+    category_id = request.GET.get("category")
+    subcategory_id = request.GET.get("subcategory")
+    sort_option = request.GET.get("sort")
 
-    categories = BakeryCategory.objects.filter(parent__isnull=True)
+    categories = BakeryCategory.objects.all()
     subcategories = BakerySubCategory.objects.all()
     products = Product.objects.all()
 
     selected_category = None
     selected_subcategory = None
     parent_category = None
-    subcategories = BakeryCategory.objects.none()
-    products = Product.objects.all()
 
     # Filter by category
     if category_id:
         try:
             selected_category = BakeryCategory.objects.get(id=category_id)
             parent_category = selected_category.id
-            # filter products by subcategories of this category
-            sub_ids = subcategories.filter(category=selected_category).values_list('id', flat=True)
-            products = products.filter(weights__product__id__in=sub_ids)  # simulate filtering
+            products = products.filter(category=selected_category)
         except BakeryCategory.DoesNotExist:
             selected_category = None
 
@@ -167,7 +164,7 @@ def our_products(request):
         try:
             selected_subcategory = BakerySubCategory.objects.get(id=subcategory_id)
             parent_category = selected_subcategory.category.id
-            products = products.filter(name__icontains=selected_subcategory.subcategory_name)
+            products = products.filter(subcategory=selected_subcategory)
         except BakerySubCategory.DoesNotExist:
             selected_subcategory = None
 
@@ -185,10 +182,10 @@ def our_products(request):
 
     # Pagination
     paginator = Paginator(products.distinct(), 9)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     products_page = paginator.get_page(page_number)
 
-    # Add main_image & first_weight for template
+    # Add main_image & first_weight
     for p in products_page:
         p.main_image = p.images.filter(is_main=True).first()
         p.first_weight = p.weights.first()
@@ -343,10 +340,12 @@ def admin_base(request):
 def all_payment(request):
     return render(request, 'admin/all_payment.html')
 
+# ----------------------------
+# Contact 
+# ----------------------------
 def contact(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)  
-
-    return render(request, 'contact.html',{'categories':categories})
+    categories = BakeryCategory.objects.all()
+    return render(request, "contact.html", {"categories": categories})
 
 
 

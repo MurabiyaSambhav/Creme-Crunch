@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!categoryId) {
             subSelect.innerHTML = '<option value="">-- Select a category first --</option>';
             selectedBox.innerHTML = "";
+            updateSelectedSubcategoriesInputs();
             return;
         }
         fetch(`/get_subcategories/${categoryId}/`)
@@ -27,11 +28,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     subSelect.innerHTML = '<option value="">-- No subcategories available --</option>';
                 }
                 selectedBox.innerHTML = "";
+                updateSelectedSubcategoriesInputs();
             })
             .catch(err => {
                 console.error("Error loading subcategories:", err);
                 subSelect.innerHTML = '<option value="">-- Error loading subcategories --</option>';
             });
+    }
+
+    function updateSelectedSubcategoriesInputs() {
+        // Remove old hidden inputs
+        document.querySelectorAll('.hidden-sub').forEach(el => el.remove());
+
+        // Add hidden inputs for each selected subcategory
+        if (!subSelect) return;
+        Array.from(subSelect.selectedOptions).forEach(option => {
+            if (option.value) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'subcategories'; // backend receives list of IDs
+                input.value = option.value;
+                input.classList.add('hidden-sub');
+                document.querySelector('form').appendChild(input);
+            }
+        });
     }
 
     if (subSelect && selectedBox) {
@@ -43,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 tag.innerHTML = `${option.text} <button type="button" data-id="${option.value}" class="remove-sub">x</button>`;
                 selectedBox.appendChild(tag);
             });
+            updateSelectedSubcategoriesInputs(); // update hidden inputs
         });
 
         selectedBox.addEventListener("click", function (e) {
@@ -52,6 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (opt.value === id) opt.selected = false;
                 });
                 e.target.parentElement.remove();
+                updateSelectedSubcategoriesInputs(); // update hidden inputs
             }
         });
     }
