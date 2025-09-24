@@ -10,7 +10,7 @@ Add to cart - Creme & Crunch
 
 <div class="product-page" style="display:flex; gap:40px; margin:50px;">
 
-  <!-- LEFT: Images -->
+<!-- LEFT: Images -->
   <div class="product-images">
       {% if main_image %}
       <img id="main-img" src="{{ main_image.image.url }}" alt="{{ product.name }}" style="width:400px; height:auto; border:1px solid #ccc; padding:5px;">
@@ -36,7 +36,6 @@ Add to cart - Creme & Crunch
             No category
         {% endif %}
     </p>
-
     <!-- Weight Select -->
     <label for="weight">Select Weight:</label>
     <select id="weight" name="weight">
@@ -57,6 +56,19 @@ Add to cart - Creme & Crunch
             0.00
         {% endif %}
     </span></p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const weightSelect = document.getElementById("weight");
+        const priceSpan = document.getElementById("price");
+
+        weightSelect.addEventListener("change", function () {
+            const selectedOption = weightSelect.options[weightSelect.selectedIndex];
+            const newPrice = selectedOption.getAttribute("data-price");
+            priceSpan.textContent = newPrice;
+        });
+    });
+</script>
 
     <button id="add-to-cart" style="background:#b9835c; color:white; padding:10px 20px; border:none; margin-top:20px;">
         Add to Cart
