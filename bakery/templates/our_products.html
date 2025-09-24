@@ -5,142 +5,144 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/our_products.css' %}">
 
-<h2>Our Products</h2>
+<div class="page-container" id="products-container">
 
-<div class="products-container" id="products-container">
-<!-- Categories Sidebar -->
-<div class="categories-box">
-    <h4>Categories</h4>
+    <!-- Page Heading -->
+    <h2 class="page-title">Our Products</h2>
 
-    <!-- Form for category selection -->
-    <form id="category-form" method="get">
-
-        <!-- All Products Option -->
-        <div class="category-option">
-            <label>
-                <input type="radio" name="category" value=""
-                    {% if not selected_category and not selected_subcategory %}checked{% endif %}
-                    onchange="submitCategoryForm()">
-                <span class="custom-radio {% if not selected_category and not selected_subcategory %}active{% endif %}"></span>
-                <span class="radio-label">All</span>
-            </label>
-        </div>
-
-        {% for category in categories %}
-        <div class="category-option">
-            <label>
-                <input type="radio" name="category" value="{{ category.id }}"
-                    {% if parent_category == category.id %}checked{% endif %}
-                    onchange="submitCategoryForm()">
-                <span class="custom-radio {% if parent_category == category.id %}active{% endif %}"></span>
-                <span class="radio-label">{{ category.category_name }}</span>
-            </label>
-        </div>
-
-        <!-- Subcategories (only for the selected category) -->
-        {% if parent_category == category.id %}
-            {% for sub in subcategories %}
-                {% if sub.category.id == category.id %}
-                <div class="subcategory-option" style="margin-left: 20px;">
-                    <label>
-                        <input type="radio" name="subcategory" value="{{ sub.id }}"
-                            {% if selected_subcategory and selected_subcategory.id == sub.id %}checked{% endif %}
-                            onchange="submitSubcategoryForm()">
-                        <span class="custom-radio {% if selected_subcategory and selected_subcategory.id == sub.id %}active{% endif %}"></span>
-                        <span class="radio-label">{{ sub.subcategory_name }}</span>
-                    </label>
-                </div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-
-        {% endfor %}
-
-        <!-- Keep search query -->
-        {% if query %}
-            <input type="hidden" name="q" value="{{ query }}">
-        {% endif %}
-        <!-- Keep sort option -->
-        {% if request.GET.sort %}
-            <input type="hidden" name="sort" value="{{ request.GET.sort }}">
-        {% endif %}
-    </form>
-</div>
-
-    <!-- Products -->
-    <div class="products-box" id="products-box">
-        {% for product in products %}
-        <div class="product-card">
-            {% if product.main_image %}
-                <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
+    <!-- Results and Sort -->
+    <div class="results-sort">
+        <div class="results-count">
+            {% if total_results > 0 %}
+                Showing {{ start_index }}–{{ end_index }} of {{ total_results }} results
             {% else %}
-                <p>No image available.</p>
+                No products found
             {% endif %}
-
-            <h3>{{ product.name }}</h3>
-
-            {% if product.first_weight %}
-                <p>₹{{ product.first_weight.price }}</p>
-            {% else %}
-                <p>Price not available</p>
-            {% endif %}
-
-            <a href="{% url 'add_cart' %}?product_id={{ product.id }}" class="add-cart-btn">Add to Cart</a>
         </div>
-        {% empty %}
-        <p>No products available.</p>
-        {% endfor %}
+
+        <form method="get" id="sort-form">
+            <select name="sort" onchange="this.form.submit()">
+                <option value="latest" {% if request.GET.sort == "latest" %}selected{% endif %}>Sort by latest</option>
+                <option value="price_low" {% if request.GET.sort == "price_low" %}selected{% endif %}>Price: low to high</option>
+                <option value="price_high" {% if request.GET.sort == "price_high" %}selected{% endif %}>Price: high to low</option>
+            </select>
+
+            {% if selected_category %}
+                <input type="hidden" name="category" value="{{ selected_category.id }}">
+            {% endif %}
+            {% if selected_subcategory %}
+                <input type="hidden" name="subcategory" value="{{ selected_subcategory.id }}">
+            {% endif %}
+            {% if query %}
+                <input type="hidden" name="q" value="{{ query }}">
+            {% endif %}
+        </form>
     </div>
 
-</div>
+    <!-- Main Content: Two Columns -->
+    <div class="products-container-inner">
 
-<!-- Sort Form -->
-<form method="get" id="sort-form">
-    <select name="sort" id="weight" onchange="this.form.submit()">
-        <option value="latest" {% if request.GET.sort == "latest" %}selected{% endif %}>Sort by latest</option>
-        <option value="price_low" {% if request.GET.sort == "price_low" %}selected{% endif %}>Sort by price: low to high</option>
-        <option value="price_high" {% if request.GET.sort == "price_high" %}selected{% endif %}>Sort by price: high to low</option>
-    </select>
+        <!-- Left Column: Categories -->
+        <aside class="categories-box">
+            <h4>Categories</h4>
+            <form id="category-form" method="get">
 
-    {% if selected_category %}
-        <input type="hidden" name="category" value="{{ selected_category.id }}">
-    {% endif %}
-    {% if selected_subcategory %}
-        <input type="hidden" name="subcategory" value="{{ selected_subcategory.id }}">
-    {% endif %}
-    {% if query %}
-        <input type="hidden" name="q" value="{{ query }}">
-    {% endif %}
-</form>
+                <!-- All Products Option -->
+                <div class="category-option">
+                    <label>
+                        <input type="radio" name="category" value=""
+                            {% if not selected_category and not selected_subcategory %}checked{% endif %}
+                            onchange="submitCategoryForm()">
+                        <span class="custom-radio {% if not selected_category and not selected_subcategory %}active{% endif %}"></span>
+                        <span class="radio-label">All</span>
+                    </label>
+                </div>
 
-<!-- Results Count -->
-<div class="results-count">
-    {% if total_results > 0 %}
-        Showing {{ start_index }}–{{ end_index }} of {{ total_results }} results
-    {% else %}
-        No products found
-    {% endif %}
-</div>
+                {% for category in categories %}
+                <div class="category-option">
+                    <label>
+                        <input type="radio" name="category" value="{{ category.id }}"
+                            {% if parent_category == category.id %}checked{% endif %}
+                            onchange="submitCategoryForm()">
+                        <span class="custom-radio {% if parent_category == category.id %}active{% endif %}"></span>
+                        <span class="radio-label">{{ category.category_name }}</span>
+                    </label>
+                </div>
 
-<!-- Pagination -->
-<div class="pagination">
-    {% if products.has_previous %}
-        <a href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory.id }}{% endif %}">Previous</a>
-    {% endif %}
+                {% if parent_category == category.id %}
+                    {% for sub in subcategories %}
+                        {% if sub.category.id == category.id %}
+                        <div class="subcategory-option">
+                            <label>
+                                <input type="radio" name="subcategory" value="{{ sub.id }}"
+                                    {% if selected_subcategory and selected_subcategory.id == sub.id %}checked{% endif %}
+                                    onchange="submitSubcategoryForm()">
+                                <span class="radio-label">{{ sub.subcategory_name }}</span>
+                            </label>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
 
-    {% for page_num in page_range %}
-        {% if page_num == "..." %}
-            <span class="dots">...</span>
-        {% elif page_num == products.number %}
-            <span class="active">{{ page_num }}</span>
-        {% else %}
-            <a href="?page={{ page_num }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory.id }}{% endif %}">{{ page_num }}</a>
+                {% endfor %}
+
+                {% if query %}
+                    <input type="hidden" name="q" value="{{ query }}">
+                {% endif %}
+                {% if request.GET.sort %}
+                    <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                {% endif %}
+            </form>
+        </aside>
+
+        <!-- Right Column: Products Grid -->
+        <section class="products-box">
+            {% for product in products %}
+            <div class="product-card">
+                {% if product.main_image %}
+                    <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <p>No image available.</p>
+                {% endif %}
+
+                <h3>{{ product.name }}</h3>
+
+                {% if product.first_weight %}
+                    <p class="price">₹{{ product.first_weight.price }}</p>
+                {% else %}
+                    <p>Price not available</p>
+                {% endif %}
+
+                <a href="{% url 'add_cart' %}?product_id={{ product.id }}" class="add-cart-btn">Add to Cart</a>
+            </div>
+            {% empty %}
+            <p>No products available.</p>
+            {% endfor %}
+        </section>
+
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if products.has_previous %}
+            <a href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory.id }}{% endif %}">Previous</a>
         {% endif %}
-    {% endfor %}
 
-    {% if products.has_next %}
-        <a href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory.id }}{% endif %}">Next</a>
-    {% endif %}
+        {% for page_num in page_range %}
+            {% if page_num == "..." %}
+                <span class="dots">...</span>
+            {% elif page_num == products.number %}
+                <span class="active">{{ page_num }}</span>
+            {% else %}
+                <a href="?page={{ page_num }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory.id }}{% endif %}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category.id }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory.id }}{% endif %}">Next</a>
+        {% endif %}
+    </div>
+
 </div>
 
 <script src="{% static 'js/our_product.js' %}"></script>
