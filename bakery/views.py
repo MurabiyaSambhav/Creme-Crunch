@@ -245,7 +245,7 @@ def contact(request):
 # About Us
 # ----------------------------
 def about_us(request):
-    categories = BakeryCategory.objects.filter(parent__isnull=True)
+    categories = BakeryCategory.objects.all()
     success = False
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -260,8 +260,8 @@ def about_us(request):
     return render(request, 'about_us.html', {'categories': categories, 'success': success})
 
 def contact_detail(request):
-    detail = ContactForm.objects.all()
-    return render(request, 'admin/contact_details.html', {'detail': detail})
+    contacts = ContactForm.objects.values("id", "name", "email", "phone", "message", "submitted_at", "created_at", "updated_at").order_by("-submitted_at")
+    return render(request, 'admin/contact_details.html', {"contacts": contacts})
 
 # ----------------------------
 # Add to Cart
