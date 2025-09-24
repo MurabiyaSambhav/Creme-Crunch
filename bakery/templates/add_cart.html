@@ -36,7 +36,6 @@ Add to cart - Creme & Crunch
             No category
         {% endif %}
     </p>
-
     <!-- Weight Select -->
     <label for="weight">Select Weight:</label>
     <select id="weight" name="weight">
@@ -57,6 +56,19 @@ Add to cart - Creme & Crunch
             0.00
         {% endif %}
     </span></p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const weightSelect = document.getElementById("weight");
+        const priceSpan = document.getElementById("price");
+
+        weightSelect.addEventListener("change", function () {
+            const selectedOption = weightSelect.options[weightSelect.selectedIndex];
+            const newPrice = selectedOption.getAttribute("data-price");
+            priceSpan.textContent = newPrice;
+        });
+    });
+</script>
 
     <button id="add-to-cart" style="background:#b9835c; color:white; padding:10px 20px; border:none; margin-top:20px;">
         Add to Cart
