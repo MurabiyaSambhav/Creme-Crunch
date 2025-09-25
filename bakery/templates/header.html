@@ -16,25 +16,25 @@
     <nav class="nav-menu">
       <a href="{% url 'home' %}">Home</a>
       <div class="nav-item">
-          <a href="#">Our Products ▾</a>
-          <div class="dropdown">
-              <div class="dropdown-columns">
-                  <div class="dropdown-column">
-                      <a href="{% url 'our_products' %}">— All Products</a>
-                      {% for category in categories %}
-                          <a href="{% url 'our_products' %}?category={{ category.id }}">
-                              — {{ category.category_name }}
-                          </a>
-                      {% endfor %}
-                  </div>
-              </div>
-          </div>
+      <a href="#">Our Products ▾</a>
+        <div class="dropdown">
+            <div class="dropdown-columns">
+                <div class="dropdown-column">
+                    <a href="{% url 'our_products' %}">— All Products</a>
+                    {% for category in categories %}
+                        {% if not category.parent %}
+                            <a href="{% url 'our_products' %}?category={{ category.id }}">
+                                — {{ category.name }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
       </div>
       <a href="{% url 'about' %}">About Us</a>
       <a href="{% url 'contact' %}">Contact</a>
-
-
-
 
         <div class="search-box">
           <form id="search-form" action="{% url 'our_products' %}" method="get" autocomplete="off">

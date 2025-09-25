@@ -12,31 +12,40 @@ if (toggleBtn && menu) {
 const addSubcategoryBtn = document.getElementById("add-subcategory");
 const subcategoryContainer = document.getElementById("subcategory-container");
 
+// Wrap existing first input in a .subcategory-wrapper
+const firstInput = subcategoryContainer.querySelector("input");
+if (firstInput && !firstInput.parentElement.classList.contains("subcategory-wrapper")) {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("subcategory-wrapper");
+    firstInput.parentElement.insertBefore(wrapper, firstInput);
+    wrapper.appendChild(firstInput);
+
+    // Add remove button for the first input
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.textContent = "−";
+    removeBtn.classList.add("remove-subcategory");
+    removeBtn.addEventListener("click", () => wrapper.remove());
+    wrapper.appendChild(removeBtn);
+}
+
 if (addSubcategoryBtn && subcategoryContainer) {
     addSubcategoryBtn.addEventListener("click", () => {
-        // Create a wrapper div for input + remove button
         const wrapper = document.createElement("div");
         wrapper.classList.add("subcategory-wrapper");
 
-        // Create input
         const input = document.createElement("input");
         input.type = "text";
         input.name = "subcategories[]";
         input.placeholder = "Subcategory name";
         input.classList.add("subcategory-input");
 
-        // Create remove button
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.textContent = "−";
         removeBtn.classList.add("remove-subcategory");
+        removeBtn.addEventListener("click", () => wrapper.remove());
 
-        // Remove functionality
-        removeBtn.addEventListener("click", () => {
-            wrapper.remove();
-        });
-
-        // Append input + button to wrapper, then wrapper to container
         wrapper.appendChild(input);
         wrapper.appendChild(removeBtn);
         subcategoryContainer.appendChild(wrapper);

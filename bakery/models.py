@@ -20,33 +20,28 @@ class CustomUser(AbstractUser):
 
 
 # ----------------------------
-# Category & Subcategory
+# Category (Merged with Subcategory)
 # ----------------------------
 class BakeryCategory(models.Model):
-    category_name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True)
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="children"
+    )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "bakery_categories"
+        verbose_name_plural = "Bakery Categories"
 
     def __str__(self):
-        return self.category_name
-
-
-class BakerySubCategory(models.Model):
-    category = models.ForeignKey(
-        BakeryCategory, on_delete=models.CASCADE, related_name="subcategories"
-    )
-    subcategory_name = models.CharField(max_length=100)
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = "bakery_subcategories"
-
-    def __str__(self):
-        return f"{self.category.category_name} → {self.subcategory_name}"
+        if self.parent:
+            return f"{self.parent.name} → {self.name}"
+        return self.name
 
 
 # ----------------------------
@@ -54,18 +49,21 @@ class BakerySubCategory(models.Model):
 # ----------------------------
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True)
 
+    # Top-level category
     category = models.ForeignKey(
-        BakeryCategory,
+        'BakeryCategory',
         on_delete=models.CASCADE,
         null=True, blank=True,
         related_name="products"
     )
+
+    # Subcategories (ManyToMany for child categories)
     subcategories = models.ManyToManyField(
-        BakerySubCategory,
+        'BakeryCategory',
         blank=True,
-        related_name="products"
+        related_name='products_subcategories'
     )
 
     created_at = models.DateTimeField(default=timezone.now)
@@ -73,7 +71,7 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
+    
 # ----------------------------
 # Product Weights / Prices
 # ----------------------------

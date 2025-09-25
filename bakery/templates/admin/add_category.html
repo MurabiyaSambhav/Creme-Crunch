@@ -10,11 +10,14 @@
     <h2>Add Category</h2>
     <form method="POST" class="category-form">
         {% csrf_token %}
+
+        <!-- Category Name -->
         <div class="form-group">
             <label for="name">Category Name:</label>
             <input type="text" name="name" placeholder="Enter category name" required>
         </div>
 
+        <!-- Subcategories -->
         <div class="form-group">
             <label>Subcategories:</label>
             <div id="subcategory-container">
@@ -26,6 +29,7 @@
         <button type="submit" class="btn-save">Save</button>
     </form>
 </div>
+
 <script src="{% static 'js/add_category.js' %}"></script>
 
 {% endblock %}
