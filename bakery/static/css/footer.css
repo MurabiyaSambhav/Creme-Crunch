@@ -39,7 +39,7 @@
     margin-top: -30px;
     font-size: 1.75rem;
     font-weight: 700;
-    color: #ccaf5e;
+    color: var(--logo-color);
     
 }
 
@@ -59,7 +59,7 @@
 }
 
 .footer-links h3 {
-    color: #c47916;
+    color:var(--address-menu-color); 
     font-weight: bold;
     margin-bottom: 8px;
     font-size: 1.1rem;
@@ -78,7 +78,7 @@
 }
 
 .footer-menu a:hover {
-    color: #c47916;
+    color:var(--address-menu-color);
 }
 
 
@@ -92,7 +92,7 @@
 }
 
 .footer-contact h3 {
-    color: #c47916;
+    color:var(--address-menu-color);
     font-weight: bold;
     margin-bottom: 12px;
     font-size: 1.1rem;
@@ -115,13 +115,13 @@
 }
 
 .footer-contact a:hover {
-    color: #c47916;
+    color: var(--address-menu-color);
 }
 
 .footer-contact i[data-lucide] {
     width: 18px;
     height: 18px;
-    stroke: #c47916;
+    stroke: var(--address-menu-color);
 }
 
 

@@ -1,16 +1,5 @@
 /* ===== CSS Reset ===== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 
-html, body {
-    width: 100%;
-    font-family: Arial, sans-serif;
-    line-height: 1.5;
-    scroll-behavior: smooth;
-}
 .about1 {
     position: relative;
     display: flex;
@@ -25,19 +14,17 @@ html, body {
     border-radius: 8px;
 }
 
-/* Overlay text positioned relative to image */
 .about-text-overlay {
     position: absolute;
-    top: 50%;       /* vertical position relative to image */
-    right: 65%;      /* horizontal position relative to image */
-    transform: translate(0, -50%); /* adjust vertical centering only */
+    top: 50%;      
+    right: 65%;      
+    transform: translate(0, -50%); 
     color: rgb(61, 61, 61);
-    font-size: clamp(1.8rem, 6vw, 3.8rem); /* responsive font size */
+    font-size: clamp(1.8rem, 6vw, 3.8rem); 
     font-family: 'Lucida Sans';
-    text-align: right; /* respects original placement */
-    white-space: nowrap; /* prevents wrapping */
+    text-align: right;
+    white-space: nowrap;
 }
-/* ===== Contact Section ===== */
 .contact-container {
     display: flex;
     justify-content: center;
@@ -56,7 +43,7 @@ html, body {
 }
 
 .contact-container h3 {
-    color: #c47916;
+    color: var(--address-menu-color);
     font-weight: bold;
     margin-bottom: 12px;
     font-size: clamp(1rem, 2.5vw, 1.1rem);
@@ -78,14 +65,10 @@ html, body {
     transition: color 0.3s;
 }
 
-.contact-container a:hover {
-    color: #c47916;
-}
-
 .contact-container i[data-lucide] {
     width: 20px;
     height: 20px;
-    stroke: #c47916;
+    color: var(--address-menu-color);
 }
 
 @media (max-width: 992px) {

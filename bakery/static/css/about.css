@@ -1,16 +1,3 @@
-/* ===== CSS Reset ===== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html, body {
-    width: 100%;
-    font-family: Arial, sans-serif;
-    line-height: 1.5;
-    scroll-behavior: smooth;
-}
 
 /* ===== About Section ===== */
 .about-row {
@@ -44,7 +31,7 @@ html, body {
     border-radius: 8px;
 }
 
-.about-text-overlay {
+.text-overlay {
     position: absolute;
     top: 45%;
     right : 68%;
@@ -117,17 +104,11 @@ html, body {
     transform: scale(1.05);
 }
 
-/* ===== Form Section ===== */
-.form {
-    background-color: #f8f5f0;
-    padding: clamp(10px, 4vw, 40px);
-}
-
 .contact-form {
     max-width: 700px;
     margin: clamp(20px, 5vw, 40px) auto;
     padding: clamp(15px, 4vw, 20px);
-    border: 1px solid #ddd;
+    border: var(--border);
     border-radius: 8px;
     background-color: rgba(240, 237, 237, 0.85);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -169,23 +150,7 @@ html, body {
     margin-top: 5px;
 }
 
-.contact-form button {
-    display: block;
-    width: 100%;
-    background-color: #782828;
-    color: #fff;
-    border: none;
-    padding: clamp(10px, 2.5vw, 12px);
-    border-radius: 5px;
-    font-size: clamp(1rem, 2.5vw, 1.1rem);
-    cursor: pointer;
-    margin-top: clamp(15px, 3vw, 20px);
-    transition: background-color 0.3s ease;
-}
 
-.contact-form button:hover {
-    background-color: #5e1d1d;
-}
 
 /* ===== Responsive Media Queries ===== */
 @media (max-width: 1024px) {

@@ -60,7 +60,6 @@
 /* Dots */
 .dots {
     position: absolute;
-    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -84,7 +83,7 @@ h2 {
     font-family: 'Arial', sans-serif;
     font-size: 28px;
     font-weight: bold;
-    color: #c47916ff;
+    color: var(--address-menu-color);
     text-align: center;
     margin: 20px 0;
     position: relative;
