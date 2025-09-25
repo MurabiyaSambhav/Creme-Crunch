@@ -14,6 +14,12 @@ import re, json, traceback
 CustomUser = get_user_model()
 
 # ----------------------------
+# Admin Pages
+# ----------------------------
+def admin_base(request):
+    return render(request, 'admin/admin_base.html')
+
+# ----------------------------
 # Base
 # ----------------------------
 def base(request):
@@ -46,7 +52,6 @@ def home(request):
         "categories": categories
     })
 
-
 # ----------------------------
 # User Auth
 # ----------------------------
@@ -78,6 +83,10 @@ def register(request):
     return JsonResponse({"success": True, "message": "Registration successful! Please login."})
 
 
+# ----------------------------
+# Login & Logout
+# ----------------------------
+
 def login(request):
     if request.method == "POST":
         email = request.POST.get("email", "").strip().lower()
@@ -97,15 +106,14 @@ def login(request):
             return JsonResponse({"success": False, "message": "User not found"})
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
 
-
 def logout(request):
     auth_logout(request)
     return redirect("home")
 
-
 # ----------------------------
 # Product Management
 # ----------------------------
+
 def add_product(request):
     categories = BakeryCategory.objects.filter(parent__isnull=True).prefetch_related('children')
     categories_json = [
@@ -158,7 +166,6 @@ def add_product(request):
         "categories": categories,
         "categories_json": json.dumps(categories_json, cls=DjangoJSONEncoder)
     })
-
 
 # ----------------------------
 # All Products
@@ -224,10 +231,10 @@ def our_products(request):
     }
     return render(request, "our_products.html", context)
 
-
 # ----------------------------
 # Categories
 # ----------------------------
+
 def add_category(request):
     if request.method == "POST":
         category_name = request.POST.get("name")
@@ -247,7 +254,6 @@ def add_category(request):
 
     categories = BakeryCategory.objects.all()
     return render(request, "admin/add_category.html", {"categories": categories})
-
 
 # ----------------------------
 # Add to Cart
@@ -312,7 +318,30 @@ def add_cart(request):
     except Exception as e:
         traceback.print_exc()
         return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)
+    
+# ----------------------------
+# Checkout                    
+# ----------------------------
 
+def checkout_view(request):
+    # your checkout logic
+    return render(request, 'checkout.html')
+
+# ----------------------------
+# Cart Items (for header display)
+# ----------------------------
+
+def cart_items(request):
+    # Example: session-based cart
+    cart = request.session.get('cart', {})  
+    items = []
+    for product_id, data in cart.items():
+        items.append({
+            'name': data['name'],
+            'quantity': data['quantity'],
+            'total_price': data['quantity'] * data['price'],
+        })
+    return JsonResponse({'items': items})
 
 # ----------------------------
 # Contact & About
@@ -341,13 +370,11 @@ def contact_detail(request):
     contacts = ContactForm.objects.values("id", "name", "email", "phone", "message", "submitted_at", "created_at", "updated_at").order_by("-submitted_at")
     return render(request, 'admin/contact_details.html', {"contacts": contacts})
 
-
 # ----------------------------
 # Payment
 # ----------------------------
 def payment(request):
     return render(request, 'payment.html')
-
 
 # ----------------------------
 # Pagination Helper
@@ -394,11 +421,7 @@ def product_suggestions(request):
     return JsonResponse({'results': suggestions})
 
 
-# ----------------------------
-# Admin Pages
-# ----------------------------
-def admin_base(request):
-    return render(request, 'admin/admin_base.html')
+
 
 
 def all_payment(request):
