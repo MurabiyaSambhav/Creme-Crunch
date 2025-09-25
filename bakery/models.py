@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.conf import settings
 import os
 
 
@@ -88,7 +89,6 @@ class Weight(models.Model):
     def __str__(self):
         return f"{self.product.name} - {self.weight} (₹{self.price})"
 
-
 # ----------------------------
 # Product Images
 # ----------------------------
@@ -124,3 +124,43 @@ class ContactForm(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.email}"
+
+# ----------------------------
+# Cart
+# ----------------------------
+
+class BakeryCart(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="cart_items"
+    )
+    product = models.ForeignKey(
+        "Product",
+        on_delete=models.CASCADE,
+        related_name="cart_entries"
+    )
+    category = models.ForeignKey(
+        "BakeryCategory",  # Correct model name
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="cart_entries"
+    )
+    weight = models.ForeignKey(
+        "Weight",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="cart_entries"
+    )
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def total_price(self):
+        """Calculate total price for this cart item."""
+        return self.price * self.quantity
+
+    def __str__(self):
+        return f"{self.product.name} ({self.quantity})"

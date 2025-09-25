@@ -1,81 +1,80 @@
-{% extends "base.html" %}
-{% load static %}
+    {% extends "base.html" %}
+    {% load static %}
 
-{% block title %}
-Add to cart - Creme & Crunch
-{% endblock %}
+    {% block title %}
+    Add to cart - Creme & Crunch
+    {% endblock %}
 
-{% block content %}
-<link rel="stylesheet" href="{% static 'css/add_cart.css' %}">
+    {% block content %}
+    <link rel="stylesheet" href="{% static 'css/add_cart.css' %}">
 
-<div class="product-page" style="display:flex; gap:40px; margin:50px;">
+    <div class="product-page" style="display:flex; gap:40px; margin:50px;">
 
-<!-- LEFT: Images -->
-  <div class="product-images">
-      {% if main_image %}
-      <img id="main-img" src="{{ main_image.image.url }}" alt="{{ product.name }}" style="width:400px; height:auto; border:1px solid #ccc; padding:5px;">
-      {% endif %}
+    <!-- LEFT: Images -->
+    <div class="product-images">
+        {% if main_image %}
+        <img id="main-img" src="{{ main_image.image.url }}" alt="{{ product.name }}" style="width:400px; height:auto; border:1px solid #ccc; padding:5px;">
+        {% endif %}
 
-      <div class="thumbnails" style="display:flex; gap:10px; margin-top:10px;">
-          {% for img in product.images.all %}
-          <img src="{{ img.image.url }}" alt="" class="thumb-img" style="width:80px; height:auto; cursor:pointer; border:1px solid #ccc; padding:2px;">
-          {% endfor %}
-      </div>
-  </div>
+        <div class="thumbnails" style="display:flex; gap:10px; margin-top:10px;">
+            {% for img in product.images.all %}
+            <img src="{{ img.image.url }}" alt="" class="thumb-img" style="width:80px; height:auto; cursor:pointer; border:1px solid #ccc; padding:2px;">
+            {% endfor %}
+        </div>
+    </div>
 
-<!-- RIGHT: Details -->
-<div class="product-details">
-    <h2>{{ product.name }}</h2>
-    <p>{{ product.description }}</p>
-
-    <!-- Category -->
+     <!-- RIGHT: Details -->
+    <div class="product-details">
+        <h2>{{ product.name }}</h2>
+        <p>{{ product.description }}</p>
+        
+    <!-- Category Display -->
     <p><strong>Category:</strong>
-        {% if categories.exists %}
-            {{ categories.first.category_name }}
+        {% if product.category %}
+            {{ product.category.name }}
         {% else %}
             No category
         {% endif %}
     </p>
-    <!-- Weight Select -->
+
     <label for="weight">Select Weight:</label>
     <select id="weight" name="weight">
-        {% if product.weights.all %}
-            {% for w in product.weights.all %}
-                <option value="{{ w.id }}" data-price="{{ w.price }}">{{ w.weight }}</option>
-            {% endfor %}
-        {% else %}
+        {% for w in product.weights.all %}
+            <option value="{{ w.id }}" data-price="{{ w.price }}">{{ w.weight }}</option>
+        {% empty %}
             <option value="" data-price="0">No weight available</option>
-        {% endif %}
+        {% endfor %}
     </select>
 
-    <!-- Price -->
     <p>Price: <span id="price">
         {% if first_weight %}
-            {{ first_weight.price }}
+            {{ first_weight.price|floatformat:2 }}
         {% else %}
-            0.000
+            0.00
         {% endif %}
     </span></p>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const weightSelect = document.getElementById("weight");
-        const priceSpan = document.getElementById("price");
-
-        weightSelect.addEventListener("change", function () {
-            const selectedOption = weightSelect.options[weightSelect.selectedIndex];
-            const newPrice = selectedOption.getAttribute("data-price");
-            priceSpan.textContent = newPrice;
-        });
-    });
-</script>
+    <!-- Quantity Selector -->
+    <div style="margin-top:20px; display:flex; align-items:center; gap:10px;">
+        <label><strong>Quantity:</strong></label>
+        <button type="button" id="decrease" style="padding:5px 10px;">-</button>
+        <input type="text" id="quantity" value="1" readonly style="width:40px; text-align:center;">
+        <button type="button" id="increase" style="padding:5px 10px;">+</button>
+    </div>
 
     <button id="add-to-cart" style="background:#b9835c; color:white; padding:10px 20px; border:none; margin-top:20px;">
         Add to Cart
     </button>
-</div>
-</span></p>
-</div>
-</div>
-<script src="{% static 'js/add_cart.js' %}"></script>
-{% endblock %}
+
+    </span></p>
+    </div>
+    </div>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <script>
+        window.addCartConfig = {
+            url: "{% url 'add_cart' %}",
+            productId: "{{ product.id }}"
+        };
+    </script>
+    <script src="{% static 'js/add_cart.js' %}"></script>
+    {% endblock %}
