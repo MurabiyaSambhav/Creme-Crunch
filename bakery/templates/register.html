@@ -1,20 +1,19 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/register.css' %}">
-<div class="forms">
-<form id="registerFormInner" class="form-card" method="POST">
+<form id="registerFormInner" class="form" method="POST">
   {% csrf_token %}
   
    
-    <label for="name">Name</label>
+    <label for="name">Name:</label>
     <input type="text" name="username" placeholder="Username" class="form-input" required>
      
-    <label for="email">Email</label>
+    <label for="email">Email:</label>
     <input type="email" name="email" placeholder="Email" class="form-input" required>
   
-    <label for="password">Password</label>
+    <label for="password">Password:</label>
     <input type="password" name="password" placeholder="Password" class="form-input" required>
     
-    <label for="phone">Phone</label>
+    <label for="phone">Phone:</label>
     <input type="text" name="phone" placeholder="Enter 10 digit" class="form-input" required>
       
     <label for="address">Address</label>
@@ -23,6 +22,6 @@
   <button type="submit" class="form-btn">Register</button>
   
 </form>
-</div>
+
 
 <script src="{% static 'js/register.js' %}"></script>

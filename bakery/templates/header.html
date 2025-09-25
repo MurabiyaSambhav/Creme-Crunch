@@ -1,18 +1,13 @@
 {% load static %}
 
-{% load static %}
-
 <!-- HEADER -->
 <header class="site-header">
-  <div class="header-container">
+  <div class="container">
     <div class="logo-section">
       <img src="{% static 'image/Name.png' %}" alt="Creme & Crunch Logo" class="logo-img" />
       <h1 class="company-name">Creme & Crust</h1>
     </div>
-
     <button class="menu-toggle">☰</button>
-    
-
     <nav class="nav-menu">
       <a href="{% url 'home' %}">Home</a>
       <div class="nav-item">
@@ -45,14 +40,10 @@
               <div id="suggestions" class="suggestions-box"></div>
           </form>
         </div>
-          
-
-
       <div class="mobile-buttons">
         <a href="#" class="btn-cart">
           <i data-lucide="shopping-cart"></i> Cart ₹0.00
         </a>
-
         {% if user.is_authenticated %}
           <a href="{% url 'logout' %}" class="btn btn-logout">
             <i data-lucide="log-out"></i> Logout
@@ -70,7 +61,6 @@
         <i data-lucide="shopping-cart"></i>
         <span class="cart-total">₹0.00</span>
       </div>
-
       {% if user.is_authenticated %}
         <a href="{% url 'logout' %}" class="btn btn-logout">
           <i data-lucide="log-out"></i> Logout
@@ -83,14 +73,12 @@
     </div>
   </div>
 </header>
-
-
 <script>
 const searchInput = document.getElementById('search-input');
 const suggestionsBox = document.getElementById('suggestions');
 
 let debounceTimeout = null;
-let selectedIndex = -1; // For keyboard navigation
+let selectedIndex = -1; 
 
 searchInput.addEventListener('input', function() {
     const query = this.value.trim();
@@ -175,5 +163,6 @@ const navMenu = document.querySelector('.nav-menu');
 menuToggle.addEventListener('click', () => {
     navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
 });
+
 </script>
 
