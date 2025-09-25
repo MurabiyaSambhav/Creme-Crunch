@@ -7,41 +7,38 @@ document.addEventListener("DOMContentLoaded", function () {
     const subSelect = document.getElementById("subcategories");
     const selectedBox = document.getElementById("selected-subcategories");
 
+    const allCategories = window.allCategories || [];
+    // Format: [{id, name, subcategories:[{id, name}, ...]}, ...]
+
     function loadSubcategories(categoryId) {
         if (!subSelect) return;
+
         subSelect.innerHTML = ""; // reset
+        selectedBox.innerHTML = ""; // clear selected tags
+        document.querySelectorAll('.hidden-sub').forEach(el => el.remove()); // clear old hidden inputs
+
         if (!categoryId) {
             subSelect.innerHTML = '<option value="">-- Select a category first --</option>';
-            selectedBox.innerHTML = "";
-            updateSelectedSubcategoriesInputs();
             return;
         }
-        fetch(`/get_subcategories/${categoryId}/`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.subcategories.length > 0) {
-                    data.subcategories.forEach(sub => {
-                        subSelect.insertAdjacentHTML("beforeend",
-                            `<option value="${sub.id}">${sub.name}</option>`);
-                    });
-                } else {
-                    subSelect.innerHTML = '<option value="">-- No subcategories available --</option>';
-                }
-                selectedBox.innerHTML = "";
-                updateSelectedSubcategoriesInputs();
-            })
-            .catch(err => {
-                console.error("Error loading subcategories:", err);
-                subSelect.innerHTML = '<option value="">-- Error loading subcategories --</option>';
+
+        const category = allCategories.find(cat => cat.id === parseInt(categoryId));
+        if (category && category.subcategories.length > 0) {
+            category.subcategories.forEach(sub => {
+                const option = document.createElement("option");
+                option.value = sub.id;
+                option.textContent = sub.name;
+                subSelect.appendChild(option);
             });
+        } else {
+            subSelect.innerHTML = '<option value="">-- No subcategories available --</option>';
+        }
     }
 
     function updateSelectedSubcategoriesInputs() {
-        // Remove old hidden inputs
         document.querySelectorAll('.hidden-sub').forEach(el => el.remove());
-
-        // Add hidden inputs for each selected subcategory
         if (!subSelect) return;
+
         Array.from(subSelect.selectedOptions).forEach(option => {
             if (option.value) {
                 const input = document.createElement('input');
@@ -63,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 tag.innerHTML = `${option.text} <button type="button" data-id="${option.value}" class="remove-sub">x</button>`;
                 selectedBox.appendChild(tag);
             });
-            updateSelectedSubcategoriesInputs(); // update hidden inputs
+            updateSelectedSubcategoriesInputs();
         });
 
         selectedBox.addEventListener("click", function (e) {
@@ -73,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (opt.value === id) opt.selected = false;
                 });
                 e.target.parentElement.remove();
-                updateSelectedSubcategoriesInputs(); // update hidden inputs
+                updateSelectedSubcategoriesInputs();
             }
         });
     }
@@ -106,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===============================
     // Images (Main + Preview + Remove)
     // ===============================
-    let imageIndex = 1;
+    let imageIndex = 0; // first image is 0
     const imagesContainer = document.getElementById("images-container");
 
     window.previewImage = function (input) {
@@ -114,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (file) {
             const reader = new FileReader();
             reader.onload = function (e) {
-                let img = input.parentElement.querySelector(".preview");
+                const img = input.parentElement.querySelector(".preview");
                 img.src = e.target.result;
                 img.style.display = "block";
             }
@@ -124,16 +121,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addImage = function () {
         if (!imagesContainer) return;
+        imageIndex++;
         const div = document.createElement("div");
         div.classList.add("image-group");
         div.innerHTML = `
             <input type="file" name="images[]" accept="image/*" onchange="previewImage(this)" required />
             <img class="preview" style="display:none; max-width:100px; margin-top:5px;" />
-            <input type="radio" name="main_image" value="${imageIndex}" ${imageIndex === 1 ? "checked" : ""}/> Main
+            <input type="radio" name="main_image" value="${imageIndex}" /> Main
             <button type="button" class="btn-remove-image">-</button>
         `;
         imagesContainer.appendChild(div);
-        imageIndex++;
     }
 
     window.removeImage = function (btn) {

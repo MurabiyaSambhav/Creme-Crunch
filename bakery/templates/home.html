@@ -24,6 +24,19 @@ Home - Creme & Crunch
 
    <h2>Explore the Best Products</h2>
 
+<div class="category-container">
+    {% for item in category_data %}
+        <a href="{% url 'our_products' %}?category={{ item.category.id }}" class="category-box">
+            {% if item.main_image %}
+                <img src="{{ item.main_image }}" alt="{{ item.category.name }}">
+            {% else %}
+                <img src="{% static 'image/default.jpg' %}" alt="{{ item.category.name }}">
+            {% endif %}
+            <div class="category-name">{{ item.category.name }}</div>
+        </a>
+    {% endfor %}
+</div>
+
 
 </div>
   <script src="{% static 'js/home.js' %}"></script>

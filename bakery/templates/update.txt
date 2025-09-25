@@ -1,6 +1,5 @@
-git checkout main
-git pull origin main
-git merge main
+python manage.py makemigrations
+python manage.py migrate
 
 
 venv\scripts\activate

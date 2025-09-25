@@ -41,59 +41,63 @@
 
     <!-- Main Content: Two Columns -->
     <div class="products-container-inner">
-
         <!-- Left Column: Categories -->
-        <aside class="categories-box">
-            <h4>Categories</h4>
-            <form id="category-form" method="get">
+            <aside class="categories-box">
+                <h4>Categories</h4>
+                <form id="category-form" method="get">
 
-                <!-- All Products Option -->
-                <div class="category-option">
-                    <label>
-                        <input type="radio" name="category" value=""
-                            {% if not selected_category and not selected_subcategory %}checked{% endif %}
-                            onchange="submitCategoryForm()">
-                        <span class="custom-radio {% if not selected_category and not selected_subcategory %}active{% endif %}"></span>
-                        <span class="radio-label">All</span>
-                    </label>
-                </div>
+                    <!-- All Products -->
+                    <div class="category-option">
+                        <label>
+                            <input type="radio" name="category" value=""
+                                {% if not selected_category %}checked{% endif %}
+                                onchange="submitCategoryForm()">
+                            <span class="custom-radio {% if not selected_category %}active{% endif %}"></span>
+                            <span class="radio-label">All</span>
+                        </label>
+                    </div>
 
-                {% for category in categories %}
-                <div class="category-option">
-                    <label>
-                        <input type="radio" name="category" value="{{ category.id }}"
-                            {% if parent_category == category.id %}checked{% endif %}
-                            onchange="submitCategoryForm()">
-                        <span class="custom-radio {% if parent_category == category.id %}active{% endif %}"></span>
-                        <span class="radio-label">{{ category.category_name }}</span>
-                    </label>
-                </div>
+                    <!-- Main Categories -->
+                    {% for category in categories %}
+                    <div class="category-option">
+                        <label>
+                            <input type="radio" name="category" value="{{ category.id }}"
+                                {% if selected_category and selected_category.id == category.id and not selected_category.parent %}checked{% endif %}
+                                onchange="submitCategoryForm()">
+                            <span class="custom-radio"></span>
+                            <span class="radio-label">{{ category.name }}</span>
+                        </label>
+                    </div>
 
-                {% if parent_category == category.id %}
-                    {% for sub in subcategories %}
-                        {% if sub.category.id == category.id %}
-                        <div class="subcategory-option">
-                            <label>
-                                <input type="radio" name="subcategory" value="{{ sub.id }}"
-                                    {% if selected_subcategory and selected_subcategory.id == sub.id %}checked{% endif %}
-                                    onchange="submitSubcategoryForm()">
-                                <span class="radio-label">{{ sub.subcategory_name }}</span>
-                            </label>
-                        </div>
-                        {% endif %}
+                    <!-- Subcategories -->
+                    {% for sub in category.children.all %}
+                    <div class="subcategory-option">
+                        <label>
+                            <input type="radio" name="category" value="{{ sub.id }}"
+                                {% if selected_category and selected_category.id == sub.id %}checked{% endif %}
+                                onchange="submitCategoryForm()">
+                            <span class="radio-label">{{ sub.name }}</span>
+                        </label>
+                    </div>
                     {% endfor %}
-                {% endif %}
+                    {% endfor %}
 
-                {% endfor %}
+                    {% if query %}
+                        <input type="hidden" name="q" value="{{ query }}">
+                    {% endif %}
+                    {% if request.GET.sort %}
+                        <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                    {% endif %}
+                </form>
+                </aside>
 
-                {% if query %}
-                    <input type="hidden" name="q" value="{{ query }}">
-                {% endif %}
-                {% if request.GET.sort %}
-                    <input type="hidden" name="sort" value="{{ request.GET.sort }}">
-                {% endif %}
-            </form>
-        </aside>
+                <style>
+                .subcategory-option {
+                    margin-left: 25px;
+                    display: block;
+                }
+                </style>
+
 
         <!-- Right Column: Products Grid -->
         <section class="products-box">
