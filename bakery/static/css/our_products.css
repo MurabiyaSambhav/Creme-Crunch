@@ -1,13 +1,3 @@
-/* Theme Colors */
-:root {
-    --primary-color: #000000;
-    /* black */
-    --secondary-color: #FFD700;
-    /* gold */
-    --background-color: #FFFFFF;
-    /* white */
-    --text-color: #333333;
-}
 
 /* Page Container */
 .page-container {
@@ -63,7 +53,7 @@
     max-width: 250px;
     background-color: var(--background-color);
     padding: 15px;
-    border: 1px solid var(--primary-color);
+    border: var(--border);
     border-radius: 8px;
 }
 

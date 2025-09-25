@@ -1,15 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
-
-{% block title %}
-Home - Creme & Crunch
-{% endblock %}
-
+{% block title %}Home - Creme & Crunch{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
-
 <div class="slider-container w-full">
-    <div class="slider" id="slider">
         <div class="slides" id="slides">
             <div class="slide"><img src="{% static 'image/slider/slider1.jpg' %}" alt="Product 1"></div>
             <div class="slide"><img src="{% static 'image/slider/slider3.jpg' %}" alt="Product 3"></div>
@@ -20,12 +14,7 @@ Home - Creme & Crunch
         <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
         <button class="next" onclick="changeSlide(1)">&#10095;</button>
         <div class="dots" id="dots"></div>
-    </div>
-
    <h2>Explore the Best Products</h2>
-
-
 </div>
   <script src="{% static 'js/home.js' %}"></script>
-
 {% endblock %}

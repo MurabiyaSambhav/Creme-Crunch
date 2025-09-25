@@ -1,12 +1,12 @@
-<form id="loginFormInner" class="form-card" method="POST" action="{% url 'login' %}">
+
+<form id="loginFormInner" class="form" method="POST" action="{% url 'login' %}">
   {% csrf_token %}
   
-  <div id="login-error" class="error-message"></div>
   
-    <label for="email">Email</label>
+    <label for="email">Email:</label>
     <input type="email" name="email" placeholder="Email" class="form-input" required>
 
-    <label for="password">Password</label>
+    <label for="password">Password:</label>
     <input type="password" name="password" placeholder="Password" class="form-input" required>
   
   <button type="submit" class="form-btn">Login</button>
