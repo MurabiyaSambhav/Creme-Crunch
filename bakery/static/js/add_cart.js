@@ -49,25 +49,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ product_id: productId, weight_id: weightId, quantity: quantity })
             });
 
-            let data;
-            try {
-                data = await response.json();
-            } catch (err) {
-                const text = await response.text();
-                console.error("Server returned non-JSON response:", text);
-                alert("Something went wrong. Server did not return JSON.");
-                return;
-            }
-
-            if (data.status === 'success') {
-                alert(data.message);
-            } else {
-                alert(data.message || "Failed to add to cart.");
+            if (response.ok) {
+                // Directly go to payment page without alert
+                window.location.href = "/payment/";
             }
 
         } catch (error) {
             console.error('Error adding to cart:', error);
-            alert('Something went wrong. Please try again.');
+            // Optionally handle silently or log only
         }
     });
 });
