@@ -1,52 +1,72 @@
+// ------------------ SEARCH SUGGESTIONS ------------------
 const searchInput = document.getElementById('search-input');
 const suggestionsBox = document.getElementById('suggestions');
-
 let debounceTimeout = null;
 let selectedIndex = -1;
 
 searchInput.addEventListener('input', function () {
     const query = this.value.trim();
-
     clearTimeout(debounceTimeout);
 
     if (!query) {
-        suggestionsBox.innerHTML = '';
-        suggestionsBox.style.display = "none";
+        hideSuggestions();
         return;
     }
 
     debounceTimeout = setTimeout(() => {
         fetch(`/product-suggestions/?q=${encodeURIComponent(query)}`)
             .then(res => res.json())
-            .then(data => {
-                suggestionsBox.innerHTML = '';
-                selectedIndex = -1; // reset selection
-
-                if (data.results.length > 0) {
-                    suggestionsBox.style.display = "block";
-                    data.results.forEach((item, index) => {
-                        const div = document.createElement('div');
-                        div.textContent = `${item.name} (${item.category})`;
-
-                        div.addEventListener('click', () => {
-                            searchInput.value = item.name;
-                            document.getElementById('search-form').submit();
-                        });
-
-                        suggestionsBox.appendChild(div);
-                    });
-                } else {
-                    suggestionsBox.style.display = "none";
-                }
-            })
+            .then(data => renderSuggestions(data.results))
             .catch(err => {
                 console.error("Suggestion fetch error:", err);
-                suggestionsBox.style.display = "none";
+                hideSuggestions();
             });
-    }, 300); // debounce 300ms
+    }, 300);
 });
 
-// Keyboard navigation for suggestions
+function renderSuggestions(results) {
+    suggestionsBox.innerHTML = '';
+    selectedIndex = -1;
+
+    if (!results || results.length === 0) {
+        hideSuggestions();
+        return;
+    }
+
+    suggestionsBox.style.display = 'block';
+    results.forEach((item) => {
+        const div = document.createElement('div');
+        div.textContent = `${item.name} (${item.category})`;
+        div.dataset.categoryId = item.category_id || '';
+
+        div.addEventListener('click', () => selectSuggestion(item, div.dataset.categoryId));
+
+        suggestionsBox.appendChild(div);
+    });
+}
+
+function selectSuggestion(item, categoryId) {
+    searchInput.value = item.name;
+
+    // Set hidden category input
+    let categoryInput = document.querySelector('#search-form input[name="category"]');
+    if (!categoryInput) {
+        categoryInput = document.createElement('input');
+        categoryInput.type = 'hidden';
+        categoryInput.name = 'category';
+        document.getElementById('search-form').appendChild(categoryInput);
+    }
+    categoryInput.value = categoryId;
+
+    document.getElementById('search-form').submit();
+}
+
+function hideSuggestions() {
+    suggestionsBox.innerHTML = '';
+    suggestionsBox.style.display = 'none';
+}
+
+// ------------------ KEYBOARD NAVIGATION ------------------
 searchInput.addEventListener('keydown', function (e) {
     const items = suggestionsBox.querySelectorAll('div');
     if (items.length === 0) return;
@@ -73,17 +93,19 @@ function updateSelection(items) {
     });
 }
 
-// Close suggestions when clicking outside
+// ------------------ CLOSE SUGGESTIONS ON OUTSIDE CLICK ------------------
 document.addEventListener('click', function (e) {
     if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-        suggestionsBox.innerHTML = '';
-        suggestionsBox.style.display = "none";
+        hideSuggestions();
     }
 });
 
-// MOBILE MENU TOGGLE
+// ------------------ MOBILE MENU TOGGLE ------------------
 const menuToggle = document.querySelector('.menu-toggle');
 const navMenu = document.querySelector('.nav-menu');
-menuToggle.addEventListener('click', () => {
-    navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
-});
+
+if (menuToggle && navMenu) {
+    menuToggle.addEventListener('click', () => {
+        navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
+    });
+}

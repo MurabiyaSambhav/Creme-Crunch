@@ -19,7 +19,6 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
-
 # ----------------------------
 # Category (Merged with Subcategory)
 # ----------------------------
@@ -32,6 +31,8 @@ class BakeryCategory(models.Model):
         blank=True,
         related_name="children"
     )
+    image = models.CharField(max_length=255, blank=True, null=True)  # matches DB
+
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -43,8 +44,7 @@ class BakeryCategory(models.Model):
         if self.parent:
             return f"{self.parent.name} → {self.name}"
         return self.name
-
-
+    
 # ----------------------------
 # Product
 # ----------------------------

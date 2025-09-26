@@ -112,7 +112,6 @@ h2::after {
     padding-right: 10px;
 }
 
-/* Category Box */
 .category-box {
     display: flex;
     flex-direction: column;
@@ -123,8 +122,13 @@ h2::after {
     overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.4s, box-shadow 0.4s;
+    transition: transform 0.4s, box-shadow 0.4s, border-color 0.4s;
     border-radius: 12px;
+    /* New border */
+    border: 2px solid #ddd;
+    /* Light gray border */
+    background-color: #fff;
+    /* Optional: gives clean contrast */
 }
 
 .category-box img {
@@ -136,10 +140,11 @@ h2::after {
     transition: transform 0.4s, box-shadow 0.4s;
 }
 
-/* 3D hover effect */
 .category-box:hover {
     transform: perspective(600px) rotateX(5deg) rotateY(5deg) scale(1.05);
     box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.2);
+    /* Border highlight on hover */
+    border-color: #666;
 }
 
 .category-box:hover img {

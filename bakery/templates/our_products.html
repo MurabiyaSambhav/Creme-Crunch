@@ -5,7 +5,6 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/our_products.css' %}">
 
-
 <div class="page-container" id="products-container">
 
     <!-- Page Heading -->
@@ -46,85 +45,82 @@
             <aside class="categories-box">
                 <h4>Categories</h4>
                 <form id="category-form" method="get">
-
                     <!-- All Products -->
-                    <div class="category-option">
-                        <label>
-                            <input type="radio" name="category" value=""
-                                {% if not selected_category %}checked{% endif %}
-                                onchange="submitCategoryForm()">
-                            <span class="custom-radio {% if not selected_category %}active{% endif %}"></span>
-                            <span class="radio-label">All</span>
-                        </label>
-                    </div>
+                        <div class="category-option">
+                            <label>
+                                <input type="radio" name="category" value=""
+                                    {% if not selected_category %}checked{% endif %}
+                                    onchange="submitCategoryForm()">
+                                <span class="custom-radio {% if not selected_category %}active{% endif %}"></span>
+                                <span class="radio-label">All</span>
+                            </label>
+                        </div>
 
-                    <!-- Main Categories -->
-                    {% for category in categories %}
-                    <div class="category-option">
-                        <label>
-                            <input type="radio" name="category" value="{{ category.id }}"
-                                {% if selected_category and selected_category.id == category.id and not selected_category.parent %}checked{% endif %}
-                                onchange="submitCategoryForm()">
-                            <span class="custom-radio"></span>
-                            <span class="radio-label">{{ category.name }}</span>
-                        </label>
-                    </div>
+                        <!-- Main Categories -->
+                        {% for category in categories %}
+                        <div class="category-option">
+                            <label>
+                                <input type="radio" name="category" value="{{ category.id }}"
+                                    {% if selected_category and selected_category.id == category.id and not selected_category.parent %}checked{% endif %}
+                                    onchange="submitCategoryForm()">
+                                <span class="custom-radio"></span>
+                                <span class="radio-label">{{ category.name }}</span>
+                            </label>
+                        </div>
 
-                    <!-- Subcategories -->
-                    {% for sub in category.children.all %}
-                    <div class="subcategory-option">
-                        <label>
-                            <input type="radio" name="category" value="{{ sub.id }}"
-                                {% if selected_category and selected_category.id == sub.id %}checked{% endif %}
-                                onchange="submitCategoryForm()">
-                            <span class="radio-label">{{ sub.name }}</span>
-                        </label>
-                    </div>
-                    {% endfor %}
-                    {% endfor %}
+                        <!-- Subcategories -->
+                        {% for sub in category.children.all %}
+                        <div class="subcategory-option">
+                            <label>
+                                <input type="radio" name="category" value="{{ sub.id }}"
+                                    {% if selected_category and selected_category.id == sub.id %}checked{% endif %}
+                                    onchange="submitCategoryForm()">
+                                <span class="radio-label">{{ sub.name }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                        {% endfor %}
 
-                    {% if query %}
-                        <input type="hidden" name="q" value="{{ query }}">
-                    {% endif %}
-                    {% if request.GET.sort %}
-                        <input type="hidden" name="sort" value="{{ request.GET.sort }}">
-                    {% endif %}
-                </form>
+                        <!-- Preserve search query -->
+                        {% if query %}
+                            <input type="hidden" name="q" value="{{ query }}">
+                        {% endif %}
+                        {% if request.GET.sort %}
+                            <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                        {% endif %}
+                    </form>
+
                 </aside>
-
                 <style>
                 .subcategory-option {
                     margin-left: 25px;
                     display: block;
                 }
-                </style>
+                </style>`
+            <!-- Right Column: Products Grid -->
+            <section class="products-box">
+                {% for product in products %}
+                <div class="product-card">
+                    {% if product.main_image %}
+                        <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <p>No image available.</p>
+                    {% endif %}
 
+                    <h3>{{ product.name }}</h3>
 
-        <!-- Right Column: Products Grid -->
-        <section class="products-box">
-            {% for product in products %}
-            <div class="product-card">
-                {% if product.main_image %}
-                    <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
-                {% else %}
-                    <p>No image available.</p>
-                {% endif %}
+                    {% if product.first_weight %}
+                        <p class="price">₹{{ product.first_weight.price }}</p>
+                    {% else %}
+                        <p>Price not available</p>
+                    {% endif %}
 
-                <h3>{{ product.name }}</h3>
-
-                {% if product.first_weight %}
-                    <p class="price">₹{{ product.first_weight.price }}</p>
-                {% else %}
-                    <p>Price not available</p>
-                {% endif %}
-
-                <a href="{% url 'add_cart' %}?product_id={{ product.id }}" class="add-cart-btn">Add to Cart</a>
-            </div>
-            {% empty %}
-            <p>No products available.</p>
-            {% endfor %}
-        </section>
-
+                    <a href="{% url 'add_cart' %}?product_id={{ product.id }}" class="add-cart-btn">Add to Cart</a>
+                </div>
+                {% empty %}
+                <p>No products available.</p>
+                {% endfor %}
+            </section>
     </div>
 
     <!-- Pagination -->

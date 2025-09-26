@@ -26,20 +26,28 @@
                 </div>
             </div>
         </div>
-
       </div>
-      <a href="{% url 'about' %}">About Us</a>
-      <a href="{% url 'contact' %}">Contact</a>
+    <a href="{% url 'about' %}">About Us</a>
+    <a href="{% url 'contact' %}">Contact</a>
 
-        <div class="search-box">
-          <form id="search-form" action="{% url 'our_products' %}" method="get" autocomplete="off">
-              <input type="text" name="q" id="search-input" placeholder="Product(Category)" value="{{ request.GET.q }}">
-              <button type="submit">
-                  <i data-lucide="search"></i>
-              </button>
-              <div id="suggestions" class="suggestions-box"></div>
-          </form>
-        </div>
+{% comment %} -------------------- Search Box ------------------------ {% endcomment %}
+
+       <div class="search-box">
+        <form id="search-form" action="{% url 'our_products' %}" method="get" autocomplete="off">
+            <input type="text" name="q" id="search-input" placeholder="Product(Category)" value="{{ request.GET.q }}">
+            <!-- Include currently selected category (main or sub) -->
+            {% if selected_category %}
+              <input type="hidden" name="category" value="{{ selected_category.id }}">
+            {% endif %}
+            <button type="submit">
+                <i data-lucide="search"></i>
+            </button>
+            <div id="suggestions" class="suggestions-box"></div>
+        </form>
+      </div>
+
+{% comment %} ----------------------------------------------- {% endcomment %}
+
       <div class="mobile-buttons">
         <a href="#" class="btn-cart">
           <i data-lucide="shopping-cart"></i> Cart 

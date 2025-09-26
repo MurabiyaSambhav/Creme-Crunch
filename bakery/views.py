@@ -10,6 +10,7 @@ from decimal import Decimal, InvalidOperation
 from django.urls import reverse
 from django.db.models import Q
 import re, json, traceback
+from django.conf import settings
 
 CustomUser = get_user_model()
 
@@ -29,24 +30,25 @@ def base(request):
 # Home
 # ----------------------------
 def home(request):
+    # Get all main categories (parent is null)
     main_categories = BakeryCategory.objects.filter(parent__isnull=True)
     category_data = []
 
     for cat in main_categories:
-        last_product = Product.objects.filter(category=cat).order_by('-id').first()
         main_image = None
-        if last_product:
-            main_image_obj = last_product.images.filter(is_main=True).first()
-            if main_image_obj:
-                main_image = main_image_obj.image.url
+
+        # Use image filename directly from the DB if available
+        if getattr(cat, "image", None) and cat.image.strip():
+            main_image = f"{settings.MEDIA_URL}products/{cat.image}"
 
         category_data.append({
             'category': cat,
-            'last_product': last_product,
             'main_image': main_image
         })
 
+    # Optional: get all categories for filtering or menus
     categories = BakeryCategory.objects.all()
+
     return render(request, "home.html", {
         "category_data": category_data,
         "categories": categories
@@ -55,6 +57,7 @@ def home(request):
 # ----------------------------
 # User Auth
 # ----------------------------
+
 def register(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "message": "Invalid request"})
@@ -74,14 +77,12 @@ def register(request):
         return JsonResponse({"success": False, "message": "Email already exists"})
     if CustomUser.objects.filter(username=username).exists():
         return JsonResponse({"success": False, "message": "Username already exists"})
-
     try:
         CustomUser.objects.create_user(username=username, email=email, password=password, phone=phone, address=address)
     except IntegrityError as e:
         return JsonResponse({"success": False, "message": f"Registration failed: {str(e)}"})
 
     return JsonResponse({"success": True, "message": "Registration successful! Please login."})
-
 
 # ----------------------------
 # Login & Logout
@@ -170,6 +171,7 @@ def add_product(request):
 # ----------------------------
 # All Products
 # ----------------------------
+
 def our_products(request):
     query = request.GET.get("q")
     category_id = request.GET.get("category")
@@ -255,9 +257,11 @@ def add_category(request):
     categories = BakeryCategory.objects.all()
     return render(request, "admin/add_category.html", {"categories": categories})
 
+
 # ----------------------------
 # Add to Cart
 # ----------------------------
+
 @login_required
 def add_cart(request):
     try:
@@ -266,7 +270,8 @@ def add_cart(request):
             product_id = data.get('product_id')
             weight_id = data.get('weight_id')
             quantity = int(data.get('quantity', 1))
-            if quantity < 1: quantity = 1
+            if quantity < 1:
+                quantity = 1
 
             if not product_id or not weight_id:
                 return JsonResponse({'status': 'error', 'message': 'Product or weight not provided.'}, status=400)
@@ -296,24 +301,22 @@ def add_cart(request):
                 cart_item.quantity += quantity
                 cart_item.save()
 
-            return JsonResponse({'status': 'success', 'message': f"{product.name} ({quantity}) added to cart."})
+            # Return updated cart items for frontend refresh
+            cart_qs = BakeryCart.objects.filter(user=request.user)
+            items = [{
+                'name': c.product.name,
+                'quantity': c.quantity,
+                'total_price': float(c.quantity * c.price)
+            } for c in cart_qs]
 
-        # GET request -> product page
-        product_id = request.GET.get('product_id')
-        if not product_id:
-            return redirect('home')
+            return JsonResponse({
+                'status': 'success',
+                'message': f"{product.name} ({quantity}) added to cart.",
+                'cart_items': items
+            })
 
-        product = get_object_or_404(Product.objects.prefetch_related('weights', 'images'), id=product_id)
-        main_image = product.images.filter(is_main=True).first()
-        categories = BakeryCategory.objects.all()
-        first_weight = product.weights.first()
-
-        return render(request, 'add_cart.html', {
-            'product': product,
-            'main_image': main_image,
-            'categories': categories,
-            'first_weight': first_weight
-        })
+        # Optional: reject GET for AJAX add_cart
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
     except Exception as e:
         traceback.print_exc()
@@ -330,18 +333,46 @@ def checkout_view(request):
 # ----------------------------
 # Cart Items (for header display)
 # ----------------------------
-
+@login_required
 def cart_items(request):
-    # Example: session-based cart
-    cart = request.session.get('cart', {})  
+    cart = request.session.get('cart', {})
+    print("DEBUG CART:", cart)  # check what’s inside
+
     items = []
     for product_id, data in cart.items():
         items.append({
-            'name': data['name'],
-            'quantity': data['quantity'],
-            'total_price': data['quantity'] * data['price'],
+            'name': data.get('name', 'Unknown'),
+            'quantity': data.get('quantity', 0),
+            'total_price': data.get('quantity', 0) * data.get('price', 0),
         })
     return JsonResponse({'items': items})
+
+@login_required
+def add_to_cart(request, product_id):
+    """
+    Add a product to session cart. If it already exists, increment quantity.
+    """
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=product_id)
+        cart = request.session.get("cart", {})
+
+        pid_str = str(product_id)
+        if pid_str not in cart:
+            cart[pid_str] = {
+                "name": product.name,
+                "quantity": 1,
+                "price": float(product.price),
+            }
+        else:
+            cart[pid_str]["quantity"] += 1
+
+        request.session["cart"] = cart
+        request.session.modified = True
+
+        return JsonResponse({"success": True, "cart": cart})
+
+    return JsonResponse({"success": False, "error": "Invalid request method."}, status=400)
+
 
 # ----------------------------
 # Contact & About
@@ -421,12 +452,8 @@ def product_suggestions(request):
     return JsonResponse({'results': suggestions})
 
 
-
-
-
 def all_payment(request):
     return render(request, 'admin/all_payment.html')
-
 
 def list(request):
     products = Product.objects.all().prefetch_related('weights', 'images')
