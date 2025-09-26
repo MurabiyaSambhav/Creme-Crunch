@@ -409,3 +409,15 @@ def list(request):
     products = Product.objects.all().prefetch_related('weights', 'images')
     categories = BakeryCategory.objects.all()
     return render(request, 'admin/master_list.html', {'products': products, 'categories': categories})
+from django.shortcuts import get_object_or_404, redirect
+from django.http import JsonResponse
+from .models import Product
+
+@login_required
+def delete_product(request, product_id):
+    try:
+        product = get_object_or_404(Product, id=product_id)
+        product.delete()
+        return redirect('list')  # redirect to your master list page
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

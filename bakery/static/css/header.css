@@ -100,13 +100,13 @@
     }
 
     .btn-logout {
-        background: linear-gradient(90deg, #ef4444, #dc2626);
-        color: #fff;
+        background: linear-gradient(90deg,#dc2626);
+        color: #161515;
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
     }
 
     .btn-logout:hover {
-        background: linear-gradient(90deg, #f87171, #b91c1c);
+        background: linear-gradient(90deg,  #e63232);
         transform: scale(1.05);
     }
 
@@ -134,7 +134,7 @@
         left: 0;
         background-color: #f8f6f6;
         border: 0px solid #929090;
-        width: 300px;
+        width: 400px;
         padding: 10px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.10);
         border-radius: 3px;
@@ -143,26 +143,37 @@
     .nav-item:hover .dropdown {
         display: block;
     }
+    
 
-    .dropdown a {
-        display: block;
-        padding: 8px 0;
-        color: #3d3d3d;
-        text-decoration: none;
-    }
+    /* Dropdown container */
+.dropdown-columns {
+    display: grid;
+    grid-auto-flow: column; /* flow items in columns */
+    grid-auto-columns: max-content; /* each column width based on content */
+    gap: 15px; /* space between columns */
+}
 
-    .dropdown a:hover {
-        transform: scale(1.05);
-    }
+/* Each dropdown link */
+.dropdown-columns a {
+    display: block;
+    padding: 6px 4px;
+    color: #3d3d3d;
+    font-size: 16px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
 
-    .dropdown-columns {
-        display: flex;
-        flex-wrap: wrap;
-    }
+/* Hover effect */
+.dropdown-columns a:hover {
+    background-color: #f1f0f0;
+    transform: scale(1.02);
+}
 
-    .dropdown-column {
-        width: 50%;
-    }
+/* Force new column after every 7 items */
+.dropdown-columns a:nth-child(7n+1) {
+    break-before: column; /* starts new column */
+}
+
 
     /*  Search Box (Fixed) */
 .search-box {
@@ -214,7 +225,7 @@
         font-size: 15px;
         text-align: center;
         width: 265px;
-        background: #f7f6f6;
+        background: #f7f6f6ee;
         border: 1px solid #ccc;
         
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -224,12 +235,77 @@
 
     /* Individual suggestion items */
     .suggestions-box div {
-        /* padding: 8px 1px; */
+        padding: 8px 1px;
         cursor: pointer;
         transition: background 0.2s ease;
     }
 
+/*  Responsive Fix */
+@media (max-width: 1024px) {
+    .nav-menu {
+        display: none; /* hide default */
+        flex-direction: column;
+        /* gap: 15px; */
+        font-size: 1rem;
+        position: absolute;
+        top: 80px; /* header ke niche */
+        right: 10px;
+        border-radius: 8px;
+        padding: 150px;
+        /* width: 240px; */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+    }
 
+    .nav-menu.show {
+        display: flex; /* toggle on */
+    }
+
+    .logo-img {
+        height: 80px;
+        width: 80px;
+    }
+
+    .company-name {
+        font-size: 1.2rem;
+    }
+
+    /* Toggle button */
+    .menu-toggle {
+        display: block;
+        font-size: 2rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    /* ✅ Search Box inside toggle menu */
+    .nav-menu .search-box {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .nav-menu .search-box input[type="text"] {
+        flex: 1;
+        padding: 6px 8px;
+        font-size: 14px;
+        border: 1px solid #979494;
+        border-radius: 4px 0 0 4px;
+        outline: none;
+    }
+
+    .nav-menu .search-box button {
+        padding: 6px 4px;
+        font-size: 14px;
+        background: #d0cfcf;
+        border: 1px solid #979494;
+        border-left: none;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+    }
+}
 
 
 
@@ -360,7 +436,7 @@
 
         .mobile-buttons a {
             padding: 8px 12px;
-            background: var(--primary-btn);
+            background: #f0940b;
             border-radius: 6px;
             text-decoration: none;
             color: #333;
@@ -370,3 +446,107 @@
             gap: 6px;
         }
     }
+    /*  Responsive Fix *//* ----------------- Responsive for 1440px ----------------- */
+@media (max-width: 1440px) {
+    /* Nav menu hidden by default */
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        gap: 15px;
+        font-size: 1rem;
+        position: absolute;
+        top: 80px; /* header ke just niche */
+        right: 10px;
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        width: 240px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+    }
+
+    /* Toggle hone ke baad dikhaye */
+    .nav-menu.show {
+        display: flex;
+    }
+
+    /* Logo aur company name size chhoti */
+    .logo-img {
+        height: 80px;
+        width: 80px;
+    }
+
+    .company-name {
+        font-size: 1.2rem;
+    }
+
+    /* Toggle (hamburger) button */
+    .menu-toggle {
+        
+        display: block;
+        font-size: 2rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    /* ✅ Search Box menu ke andar */
+    .nav-menu{
+       margin: 20px;
+        display: flex;
+        
+    }
+
+    .nav-menu .search-box input[type="text"] {
+        flex: 1;
+        padding: 6px 0px;
+        font-size: 14px;
+        border: 1px solid #979494;
+        border-radius: 4px 0 0 4px;
+        outline: none;
+    }
+
+    .nav-menu .search-box button {
+        padding: 6px 10px;
+        font-size: 14px;
+        background: #d0cfcf;
+        border: 1px solid #979494;
+        border-left: none;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+    }
+}
+
+/* Desktop > 1440px */
+@media (min-width: 1441px) {
+    .nav-menu {
+        display: flex !important; /* hamesha dikhaye */
+        flex-direction: row;
+        gap: 42px;
+        position: relative;
+        top: auto;
+        right: auto;
+        background: none;
+        padding: 0;
+        width: auto;
+        box-shadow: none;
+    }
+
+    .menu-toggle {
+        display: none; /* toggle button hide */
+    }
+
+    .cart-login {
+        display: flex; /* always visible */
+    }
+
+    .logo-img {
+        height: 140px;
+        width: 140px;
+    }
+
+    .company-name {
+        font-size: 1.75rem;
+    }
+}

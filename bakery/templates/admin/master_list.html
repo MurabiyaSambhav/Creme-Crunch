@@ -4,7 +4,9 @@
 {% block title %}Add Category | Admin Panel{% endblock %}
 
 {% block content %}
-<h1>All Records</h1>
+<link rel="stylesheet" href="{% static 'css/admin_css/list.css' %}">
+
+<h1> Records details</h1>
 
 <table border="1" cellpadding="5" cellspacing="0">
     <tr>
@@ -28,22 +30,22 @@
         <!-- Category -->
         <td>
             {% if product.category %}
-                {{ product.category.category_name }}
+                {{ product.category.id }} - {{ product.category.category_name }}
             {% else %}
                 -
             {% endif %}
         </td>
 
-        <!-- Subcategories -->
-        <td>
-            {% if product.category %}
-                {% for sub in product.category.subcategories.all %}
-                    {{ sub.subcategory_name }}{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-            {% else %}
-                -
-            {% endif %}
-        </td>
+<!-- Subcategories -->
+<td>
+    {% if product.subcategories.exists %}
+        {% for sub in product.subcategories.all %}
+            {{ sub.id }} - {{ sub.name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    {% else %}
+        No subcategories
+    {% endif %}
+</td>
 
         <!-- Weights & Prices -->
         <td>
@@ -69,8 +71,11 @@
 
         <!-- Action -->
         <td>
-            <a href="">Edit</a> |
-            <a href="">Delete</a>
+            <a href={% url "add_product" %}>Edit</a> |
+            <a href="{% url 'delete_product' product.id %}" 
+            onclick="return confirm('Are you sure you want to delete this product?');">
+            Delete
+            </a>
         </td>
     </tr>
     {% endfor %}

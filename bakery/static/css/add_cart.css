@@ -1,189 +1,180 @@
-/* General Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+/* ----------------- Root Variables ----------------- */
+:root {
+    --primary-color: #b9835c;
+    --font-family: 'Poppins', 'Arial', sans-serif; /* stylish font */
+    --font-size-base: 16px;
+    --border-radius: 6px;
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Body */
-body {
-    background-color: #ffffff;
-    color: #222;
-    line-height: 1.6;
-}
-
-/* Container */
+/* ----------------- Product Page Container ----------------- */
 .product-page {
-    max-width: 1200px;
-    margin: 50px auto;
-    padding: 20px;
     display: flex;
+    flex-wrap: wrap;
     gap: 40px;
-    justify-content: center;
-    align-items: flex-start;
-    /* Removed box background, border-radius & shadow */
+    margin: 50px;
+    font-family: var(--font-family);
 }
 
-/* LEFT: Product Images */
+/* ----------------- Left: Images ----------------- */
 .product-images {
     flex: 1;
-    text-align: center;
+    min-width: 300px;
+    margin-left: 250px;
 }
 
-.product-images img#main-img {
+.product-images #main-img {
     width: 100%;
     max-width: 400px;
     height: auto;
-    border: 2px solid #b9835c;
-    border-radius: 10px;
+    border: 1px solid #ccc;
     padding: 5px;
-    background: #fff;
+    box-shadow: var(--box-shadow);
+    object-fit: cover;
 }
 
-.thumbnails {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+.product-images .thumbnails {
     gap: 10px;
-    margin-top: 15px;
+    margin-top: 10px;
+    display: flex;
 }
 
-.thumbnails img {
+.product-images .thumb-img {
     width: 80px;
     height: auto;
-    border: 2px solid #ddd;
-    border-radius: 6px;
     cursor: pointer;
-    transition: 0.3s;
+    border: 1px solid #ccc;
+    padding: 2px;
+    border-radius: var(--border-radius);
+    transition: transform 0.2s, border-color 0.2s;
 }
 
-.thumbnails img:hover {
-    border-color: #d4af37;
-    /* gold */
+.product-images .thumb-img:hover {
     transform: scale(1.05);
+    border-color: var(--primary-color);
 }
 
-/* RIGHT: Product Details */
+/* ----------------- Right: Details ----------------- */
 .product-details {
+    margin-right: 400px;
     flex: 1;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .product-details h2 {
-    font-size: 28px;
-    margin-bottom: 15px;
-    color: #000;
+    text-transform: uppercase;
+    color: rgb(60, 67, 67);
+    font-size: 2rem;
+    font-family: 'Poppins', sans-serif; /* stylish font */
+    letter-spacing: 1px;
 }
 
 .product-details p {
-    margin-bottom: 10px;
-    color: #444;
+    font-size: var(--font-size-base);
+    line-height: 1.8; /* thoda long spacing */
+    color: #4c4c4c;
 }
 
 .product-details label {
-    font-weight: bold;
-    margin-right: 8px;
-    color: #000;
+    color: rgb(78, 79, 79);
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
 }
 
-select {
-    padding: 8px 12px;
+.product-details select {
+    padding: 4px 8px; /* thoda chhota */
+    border-radius: var(--border-radius);
     border: 1px solid #ccc;
-    border-radius: 6px;
-    outline: none;
+    width: 120px; /* compact width */
+    font-size: var(--font-size-base);
 }
 
-#price {
-    font-size: 22px;
-    font-weight: bold;
-    color: #b9835c;
-    /* brownish gold */
+/* ----------------- Price ----------------- */
+.product-details #price {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1.6rem;
 }
 
-/* Quantity Selector */
-#decrease,
-#increase {
-    background: #000;
-    color: #fff;
-    border: none;
-    font-size: 18px;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-#decrease:hover,
-#increase:hover {
-    background: #d4af37;
-    /* gold */
-    color: #000;
-}
-
+/* ----------------- Quantity Selector ----------------- */
 #quantity {
-    border: none;
-    background: #f8f8f8;
-    font-size: 18px;
-    font-weight: bold;
-    width: 50px;
+    width: 40px; /* thoda chhota */
     text-align: center;
-    border-radius: 6px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    padding: 4px;
+    font-size: 0.9rem;
 }
 
-/* Add to Cart Button */
-#add-to-cart {
-    background: linear-gradient(45deg, #b9835c, #000);
-    color: #fff;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 8px;
+#increase, #decrease {
+    padding: 4px 8px; /* chhota aur compact */
+    font-size: 0.9rem;
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
     cursor: pointer;
-    font-size: 16px;
-    margin-top: 20px;
-    transition: 0.3s;
+    transition: background 0.2s, transform 0.2s;
 }
 
-#add-to-cart:hover {
-    background: linear-gradient(45deg, #d4af37, #000);
-    color: #fff;
+#increase:hover, #decrease:hover {
+    color: white;
     transform: scale(1.05);
 }
 
-/* RESPONSIVE */
-@media (max-width: 992px) {
+/* ----------------- Add to Cart Button ----------------- */
+#add-to-cart {
+    background: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background 0.3s, transform 0.2s;
+}
+
+/* ----------------- Responsive ----------------- */
+@media (max-width: 1024px) {
     .product-page {
         flex-direction: column;
-        align-items: center;
-        text-align: center;
+        gap: 30px;
+        margin: 30px;
     }
 
-    .product-details {
+    .product-images #main-img {
+        max-width: 100%;
+    }
+
+    .product-details select {
         width: 100%;
-    }
-
-    .product-images img#main-img {
-        max-width: 300px;
     }
 }
 
-@media (max-width: 600px) {
-    .product-page {
-        margin: 20px;
-        padding: 15px;
-        gap: 20px;
-    }
-
+@media (max-width: 480px) {
     .product-details h2 {
-        font-size: 22px;
-    }
-
-    #price {
-        font-size: 18px;
+        font-size: 1.5rem;
     }
 
     #add-to-cart {
         width: 100%;
-        font-size: 18px;
+    }
+
+    .product-images .thumbnails {
+        gap: 5px;
+    }
+
+    .product-images .thumb-img {
+        width: 60px;
+    }
+
+    #quantity, #increase, #decrease {
+        width: auto;
+        padding: 3px 6px;
+        font-size: 0.85rem;
     }
 }
