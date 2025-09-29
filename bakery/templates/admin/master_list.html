@@ -23,31 +23,27 @@
 
     {% for product in products %}
     <tr>
-        <td>{{ forloop.counter }}</td> <!-- Serial number -->
+        <td>{{ forloop.counter }}</td> 
         <td>{{ product.id }}</td>
         <td>{{ product.name }}</td>
-
-        <!-- Category -->
         <td>
             {% if product.category %}
-                {{ product.category.id }} - {{ product.category.category_name }}
+                {{ product.category.name }}
             {% else %}
                 -
             {% endif %}
         </td>
 
-<!-- Subcategories -->
-<td>
-    {% if product.subcategories.exists %}
-        {% for sub in product.subcategories.all %}
-            {{ sub.id }} - {{ sub.name }}{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-    {% else %}
-        No subcategories
-    {% endif %}
-</td>
+        <td>
+            {% if product.subcategories.exists %}
+                {% for sub in product.subcategories.all %}
+                    {{ sub.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                No subcategories
+            {% endif %}
+        </td>
 
-        <!-- Weights & Prices -->
         <td>
             {% for w in product.weights.all %}
                 {{ w.weight }} - ₹{{ w.price }}<br>
@@ -56,7 +52,7 @@
             {% endfor %}
         </td>
 
-        <!-- Images -->
+        
         <td>
             {% for img in product.images.all %}
                 {% if img.is_main %}{% endif %}
@@ -66,12 +62,11 @@
             {% endfor %}
         </td>
 
-        <!-- Description -->
         <td>{{ product.description }}</td>
 
-        <!-- Action -->
+ 
         <td>
-            <a href={% url "add_product" %}>Edit</a> |
+            <a href="{% url 'edit_product' product.id %}">Edit</a>
             <a href="{% url 'delete_product' product.id %}" 
             onclick="return confirm('Are you sure you want to delete this product?');">
             Delete
@@ -82,5 +77,4 @@
 </table>
 
 
-<!-- Similarly for subcategories, users, contacts -->
 {% endblock %}

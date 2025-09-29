@@ -49,7 +49,7 @@ tr:nth-child(even) {
 }
 
 tr:hover {
-    background-color: #f0e6d2;
+    background-color: #d5d4d3;
     transition: background 0.3s;
 }
 
