@@ -1,7 +1,7 @@
 /* ----------------- Root Variables ----------------- */
 :root {
     --primary-color: #b9835c;
-    --font-family: 'Poppins', 'Arial', sans-serif; /* stylish font */
+    --font-family: 'Poppins', 'Arial', sans-serif;
     --font-size-base: 16px;
     --border-radius: 6px;
     --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -10,38 +10,40 @@
 /* ----------------- Product Page Container ----------------- */
 .product-page {
     display: flex;
-    flex-wrap: wrap;
-    gap: 40px;
-    margin: 50px;
+    flex-wrap: wrap; /* allows stacking on small screens */
+    gap: 80px;
+    padding: 20px;
     font-family: var(--font-family);
+    justify-content: center; /* center content on larger screens */
 }
 
 /* ----------------- Left: Images ----------------- */
 .product-images {
-    flex: 1;
-    min-width: 300px;
-    margin-left: 250px;
+    flex: 1 1 300px; /* grow, shrink, minimum width */
+    max-width: 500px; /* optional max */
 }
 
 .product-images #main-img {
     width: 100%;
-    max-width: 400px;
     height: auto;
     border: 1px solid #ccc;
     padding: 5px;
     box-shadow: var(--box-shadow);
     object-fit: cover;
+    border-radius: var(--border-radius);
 }
 
 .product-images .thumbnails {
+    display: flex;
     gap: 10px;
     margin-top: 10px;
-    display: flex;
+    flex-wrap: wrap; /* stack thumbnails if small screen */
 }
 
 .product-images .thumb-img {
     width: 80px;
-    height: auto;
+    height: 80px;
+    object-fit: cover;
     cursor: pointer;
     border: 1px solid #ccc;
     padding: 2px;
@@ -56,9 +58,8 @@
 
 /* ----------------- Right: Details ----------------- */
 .product-details {
-    margin-right: 400px;
-    flex: 1;
-    min-width: 280px;
+    flex: 1 1 300px;
+    max-width: 600px;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -68,13 +69,12 @@
     text-transform: uppercase;
     color: rgb(60, 67, 67);
     font-size: 2rem;
-    font-family: 'Poppins', sans-serif; /* stylish font */
     letter-spacing: 1px;
 }
 
 .product-details p {
     font-size: var(--font-size-base);
-    line-height: 1.8; /* thoda long spacing */
+    line-height: 1.6;
     color: #4c4c4c;
 }
 
@@ -86,15 +86,16 @@
 }
 
 .product-details select {
-    padding: 4px 8px; /* thoda chhota */
+    padding: 4px 8px;
     border-radius: var(--border-radius);
     border: 1px solid #ccc;
-    width: 120px; /* compact width */
+    width: 100%; /* responsive */
+    max-width: 150px;
     font-size: var(--font-size-base);
 }
 
 /* ----------------- Price ----------------- */
-.product-details #price {
+#price {
     font-weight: 600;
     color: var(--primary-color);
     font-size: 1.6rem;
@@ -102,7 +103,7 @@
 
 /* ----------------- Quantity Selector ----------------- */
 #quantity {
-    width: 40px; /* thoda chhota */
+    width: 50px;
     text-align: center;
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
@@ -111,7 +112,7 @@
 }
 
 #increase, #decrease {
-    padding: 4px 8px; /* chhota aur compact */
+    padding: 4px 8px;
     font-size: 0.9rem;
     background: #f5f5f5;
     border: 1px solid #ccc;
@@ -125,17 +126,21 @@
     transform: scale(1.05);
 }
 
-/* ----------------- Add to Cart Button ----------------- */
 #add-to-cart {
-    background: var(--primary-color);
-    color: white;
+    text-align: center;
+    background:#b9835c;
+    color: rgb(248, 248, 247);
     padding: 12px 20px;
     border: none;
     border-radius: var(--border-radius);
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 400;
     font-size: 1rem;
     transition: background 0.3s, transform 0.2s;
+}
+
+#add-to-cart:hover {
+    background-color: rgb(232, 134, 43);
 }
 
 /* ----------------- Responsive ----------------- */
@@ -143,15 +148,16 @@
     .product-page {
         flex-direction: column;
         gap: 30px;
-        margin: 30px;
+        padding: 20px;
     }
 
-    .product-images #main-img {
+    .product-images, .product-details {
         max-width: 100%;
     }
 
-    .product-details select {
-        width: 100%;
+    .product-images .thumbnails img {
+        width: 60px;
+        height: 60px;
     }
 }
 
@@ -164,12 +170,9 @@
         width: 100%;
     }
 
-    .product-images .thumbnails {
-        gap: 5px;
-    }
-
-    .product-images .thumb-img {
-        width: 60px;
+    .product-images .thumbnails img {
+        width: 50px;
+        height: 50px;
     }
 
     #quantity, #increase, #decrease {
