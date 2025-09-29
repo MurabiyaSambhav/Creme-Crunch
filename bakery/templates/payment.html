@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/payment.css' %}">
+
+<div class="checkout-container">
+
+    <!-- LEFT COLUMN: Cart / Edit -->
+    <div class="cart-column">
+      
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr data-product="{{ item.product.id }}" data-weight="{{ item.weight.id }}">
+                    <td><button class="remove-item">×</button></td>
+                    <td>
+                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" width="50">
+                        {{ item.product.name }} - {{ item.weight.weight }}
+                    </td>
+                    <td>₹{{ item.weight.price }}</td>
+                    <td>
+                        <button class="decrease">-</button>
+                        <input type="text" class="quantity" value="{{ item.quantity }}" readonly>
+                        <button class="increase">+</button>
+                    </td>
+                    <td class="item-total">₹{{ item.item_total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="summary-column">
+        <h2>Your Order</h2>
+        <table class="order-summary-table">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Product</th>
+                    <th style="text-align: right;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product.name }} - {{ item.weight.weight }} × {{ item.quantity }}</td>
+                    <td style="text-align: right;">₹{{ item.item_total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr>
+
+        <p class="summary-line">
+            <strong>Subtotal:</strong>
+            <span>₹<span id="cart-subtotal">{{ subtotal }}</span></span>
+        </p>
+        <p class="summary-line">
+            <strong>Total:</strong>
+            <span>₹<span id="cart-total">{{ subtotal }}</span></span>
+        </p>
+        <p><strong>Delivery instructions:</strong> The order is shipped the same day if order placed before 5 pm, otherwise next day.</p>
+    </div>
+
+</div>
+
+<meta name="csrf-token" content="{{ csrf_token }}">
+<script src="{% static 'js/payment.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,114 @@
+/* ---------------------- Container ---------------------- */
+.checkout-container {
+    display: flex;
+    gap: 30px;
+    margin: 50px;
+    flex-wrap: wrap; /* Responsive for small screens */
+}
+
+/* ---------------------- LEFT COLUMN: Cart ---------------------- */
+.cart-column {
+    flex: 2; /* wider column */
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-table th, .cart-table td {
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.cart-table img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+
+}
+
+/* Buttons */
+button.increase, button.decrease {
+    padding: 5px 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #f9b249;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+button.remove-item {
+    padding: 20px 10px;
+    cursor: pointer;
+    border: none;
+    font-size: larger;   
+    color: #222020;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.summary-column {
+    flex: 1; /* narrower column */
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 250px;
+    background-color: #fefefe;
+}
+
+.summary-column h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.order-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.order-summary-table th, .order-summary-table td {
+    padding: 5px;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+hr {
+    margin: 15px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
+/* Delivery instructions */
+.summary-column p {
+    font-size: 14px;
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+/* ---------------------- Responsive ---------------------- */
+@media (max-width: 768px) {
+    .checkout-container {
+        flex-direction: column;
+    }
+
+    .cart-column, .summary-column {
+        width: 100%;
+    }
+}

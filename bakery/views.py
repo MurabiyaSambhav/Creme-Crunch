@@ -171,7 +171,6 @@ def our_products(request):
     selected_category = None
     parent_category = None
 
-    # Filter by category/subcategory
     if category_id:
         try:
             selected_category = BakeryCategory.objects.get(id=category_id)
@@ -248,10 +247,6 @@ def add_category(request):
     categories = BakeryCategory.objects.all()
     return render(request, "admin/add_category.html", {"categories": categories})
 
-
-# ----------------------------
-# Add to Cart
-# ----------------------------
 @login_required
 def add_cart(request):
     try:
@@ -267,7 +262,7 @@ def add_cart(request):
 
             product = get_object_or_404(Product.objects.prefetch_related('weights', 'images', 'category'), id=product_id)
 
-            # Access weight safely
+     
             try:
                 weight = product.weights.get(id=weight_id)
             except AttributeError:
@@ -292,7 +287,7 @@ def add_cart(request):
 
             return JsonResponse({'status': 'success', 'message': f"{product.name} ({quantity}) added to cart."})
 
-        # GET request -> product page
+
         product_id = request.GET.get('product_id')
         if not product_id:
             return redirect('home')
@@ -313,10 +308,6 @@ def add_cart(request):
         traceback.print_exc()
         return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)
 
-
-# ----------------------------
-# Contact & About
-# ----------------------------
 def contact(request):
     categories = BakeryCategory.objects.all()
     return render(request, "contact.html", {"categories": categories})
@@ -342,16 +333,6 @@ def contact_detail(request):
     return render(request, 'admin/contact_details.html', {"contacts": contacts})
 
 
-# ----------------------------
-# Payment
-# ----------------------------
-def payment(request):
-    return render(request, 'payment.html')
-
-
-# ----------------------------
-# Pagination Helper
-# ----------------------------
 def get_page_range(paginator, current_page, max_pages=5):
     total_pages = paginator.num_pages
     if total_pages <= max_pages:
@@ -372,9 +353,6 @@ def get_page_range(paginator, current_page, max_pages=5):
     return page_range
 
 
-# ----------------------------
-# Product Suggestions
-# ----------------------------
 def product_suggestions(request):
     query = request.GET.get('q', '')
     suggestions = []
@@ -393,7 +371,6 @@ def product_suggestions(request):
 
     return JsonResponse({'results': suggestions})
 
-
 # ----------------------------
 # Admin Pages
 # ----------------------------
@@ -405,7 +382,160 @@ def all_payment(request):
     return render(request, 'admin/all_payment.html')
 
 
-def list(request):
-    products = Product.objects.all().prefetch_related('weights', 'images')
+def product_list(request):
+    products = Product.objects.all()
     categories = BakeryCategory.objects.all()
-    return render(request, 'admin/master_list.html', {'products': products, 'categories': categories})
+    return render(request, 'admin/master_list.html', {'categories': categories,'products': products})
+
+@login_required
+def delete_product(request, product_id):
+    try:
+        product = get_object_or_404(Product, id=product_id)
+        product.delete()
+        return redirect('list')  
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+def add_edit_product(request, product_id=None):
+    if product_id:
+        product = get_object_or_404(Product, id=product_id)
+    else:
+        product = None
+
+    categories = BakeryCategory.objects.filter(parent__isnull=True)
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        category_id = request.POST.get("category")
+        category = BakeryCategory.objects.get(id=category_id) if category_id else None
+        description = request.POST.get("description")
+
+        if product:
+            product.name = name
+            product.category = category
+            product.description = description
+            product.save()
+        else:
+            product = Product.objects.create(
+                name=name,
+                category=category,
+                description=description
+            )
+
+        subcat_ids = request.POST.getlist("subcategories")
+        product.subcategories.set(subcat_ids)
+
+        product.weights.all().delete()
+        weights = request.POST.getlist("weights[]")
+        prices = request.POST.getlist("prices[]")
+        for w, p in zip(weights, prices):
+            Weight.objects.create(product=product, weight=w, price=p)
+
+        delete_images = request.POST.getlist("delete_images[]")
+        if delete_images:
+            ProductImages.objects.filter(id__in=delete_images, product=product).delete()
+
+      
+        images = request.FILES.getlist("images[]")
+        main_index = int(request.POST.get("main_image", 0))
+        for idx, img in enumerate(images):
+            ProductImages.objects.create(
+                product=product,
+                image=img,
+                is_main=(idx == main_index)
+            )
+
+        return redirect("list")
+
+    pre_selected_subcategories = []
+    if product:
+        pre_selected_subcategories = list(product.subcategories.values_list("id", flat=True))
+
+    context = {
+        "product": product,
+        "categories": categories,
+        "categories_json": [
+            {"id": c.id, "name": c.name, "subcategories": list(c.children.values("id", "name"))} 
+            for c in categories
+        ],
+        "pre_selected_subcategories": pre_selected_subcategories
+    }
+    return render(request, "admin/add_product.html", context)
+
+def delete_contact(request, contact_id):
+    contact = get_object_or_404(ContactForm, id=contact_id)
+    contact.delete()
+    return redirect("contact_detail") 
+
+
+def payment(request):
+    cart_items = BakeryCart.objects.filter(user=request.user)
+    subtotal = 0
+
+
+    for item in cart_items:
+        if item.weight:
+            item.item_total = item.quantity * item.weight.price
+        else:
+            item.item_total = 0
+        subtotal += item.item_total
+
+    context = {
+        'cart_items': cart_items,
+        'subtotal': subtotal
+    }
+    return render(request, 'payment.html', context)
+
+def update_cart(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        weight_id = request.POST.get('weight_id')
+        quantity = int(request.POST.get('quantity'))
+
+        try:
+            cart_item = BakeryCart.objects.get(
+                user=request.user,
+                product_id=product_id,
+                weight_id=weight_id
+            )
+        except BakeryCart.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Item not found in cart'})
+
+        cart_item.quantity = quantity
+        cart_item.save()
+
+        cart_items = BakeryCart.objects.filter(user=request.user)
+        subtotal = sum(
+            (ci.quantity * ci.weight.price) if ci.weight else 0
+            for ci in cart_items
+        )
+
+        return JsonResponse({
+            'success': True,
+            'subtotal': subtotal,
+            'item_total': (cart_item.quantity * cart_item.weight.price) if cart_item.weight else 0
+        })
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+def remove_cart_item(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        weight_id = request.POST.get('weight_id')
+        try:
+            cart_item = BakeryCart.objects.get(
+                user=request.user,
+                product_id=product_id,
+                weight_id=weight_id
+            )
+            cart_item.delete()
+        except BakeryCart.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Item not found'})
+
+        cart_items = BakeryCart.objects.filter(user=request.user)
+        subtotal = sum(
+            (ci.quantity * ci.weight.price) if ci.weight else 0
+            for ci in cart_items
+        )
+        return JsonResponse({'success': True, 'subtotal': subtotal})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request'})

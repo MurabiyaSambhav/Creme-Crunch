@@ -1,0 +1,103 @@
+/* ----------------- Root Variables ----------------- */
+:root {
+    --primary-color: #8a8d91;
+    --secondary-color: #f5f5f5;
+    --font-family: 'Arial', sans-serif;
+    --border-radius: 6px;
+    --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+h1 {
+    font-family: 'Poppins', 'Arial', sans-serif; /* stylish font */
+    font-size: 2.5rem; /* bada size */
+    color: #605f5e; /* primary color */
+
+    letter-spacing: 1.5px; /* spacing between letters */
+    font-weight: 700; /* bold */
+    margin-bottom: 20px; /* spacing below heading */
+    text-align: center; /* center align */
+    position: relative;
+}
+
+
+/* ----------------- General Table Styles ----------------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-family);
+    margin-top: 20px;
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+th, td {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+tr:nth-child(even) {
+    background-color: var(--secondary-color);
+}
+
+tr:hover {
+    background-color: #d5d4d3;
+    transition: background 0.3s;
+}
+
+/* ----------------- Images ----------------- */
+td img {
+    border-radius: var(--border-radius);
+    object-fit: cover;
+}
+
+/* ----------------- Action Links ----------------- */
+td a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    margin-right: 5px;
+    transition: color 0.2s;
+}
+
+td a:hover {
+    color: #905c3f;
+    text-decoration: underline;
+}
+
+/* ----------------- Responsive ----------------- */
+@media (max-width: 1024px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    th {
+        display: none;
+    }
+
+    td {
+        padding: 8px;
+        position: relative;
+        padding-left: 50%;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+}

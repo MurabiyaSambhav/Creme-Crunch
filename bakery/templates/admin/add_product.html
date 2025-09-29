@@ -1,74 +1,107 @@
 {% extends "admin/admin_base.html" %}
 {% load static %}
 
-{% block title %}Add Product | Admin Panel{% endblock %}
+{% block title %}{% if product %}Edit Product{% else %}Add Product{% endif %} | Admin Panel{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/admin_css/add_products.css' %}">
 
 <div class="form-container">
-    <h2>Add Bakery Product</h2>
+    <h2>{% if product %}Edit Bakery Product{% else %}Add Bakery Product{% endif %}</h2>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 
         <!-- Product Name -->
-        <label for="name">Product Name:</label>
-        <input type="text" id="name" name="name" required />
+        <label>
+            Product Name:
+            <input type="text" name="name" required value="{% if product %}{{ product.name }}{% endif %}" />
+        </label>
 
-        <!-- Weights + Prices -->
-        <label>Weights & Prices:</label>
-        <div id="weights-container">
-            <div class="weight-group">
-                <input type="text" name="weights[]" placeholder="Weight (e.g. 250g, 1kg)" required />
-                <input type="number" name="prices[]" placeholder="Price (₹)" step="0.01" required />
-                <button type="button" class="btn-add-weight">+</button>
+<label for="category">
+    Category:
+    <select id="category" name="category">
+        <option value="">-- Select Category --</option>
+        {% for category in categories %}
+            <option value="{{ category.id }}"
+                {% if product and product.category.id == category.id %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+        {% endfor %}
+    </select>
+</label>
+
+<label for="subcategories">
+    Subcategories:
+    <select id="subcategories" multiple></select>
+</label>
+<div id="selected-subcategories" class="selected-tags"></div>
+
+
+        <!-- Weights & Prices -->
+        <label>
+            Weights & Prices:
+            <div id="weights-container">
+                {% if product %}
+                    {% for w in product.weights.all %}
+                    <div class="weight-group" data-existing="{{ w.id }}">
+                        <input type="text" name="weights[]" value="{{ w.weight }}" required />
+                        <input type="number" name="prices[]" value="{{ w.price }}" step="0.01" required />
+                        <button type="button" class="btn-add-weight">+</button>
+                        <button type="button" class="btn-remove-weight">-</button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="weight-group">
+                        <input type="text" name="weights[]" placeholder="Weight" required />
+                        <input type="number" name="prices[]" placeholder="Price" step="0.01" required />
+                        <button type="button" class="btn-add-weight">+</button>
+                    </div>
+                {% endif %}
             </div>
-        </div>
+        </label>
 
-        <!-- Category -->
-        <label for="category">Category:</label>
-        <div class="category-wrapper">
-            <select id="category" name="category">
-                <option value="">-- Select Category --</option>
-                {% for category in categories %}
-                    <option value="{{ category.id }}">{{ category.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+        <!-- Images -->
+        <label>
+            Images:
+            <div id="images-container">
+                {% if product %}
+                    {% for img in product.images.all %}
+                    <div class="image-group" data-existing="{{ img.id }}">
+                        <input type="file" name="images[]" accept="image/*" onchange="previewImage(this)" />
+                        <img src="{{ img.image.url }}" class="preview" style="max-width:100px; margin-top:5px;" />
+                        <input type="radio" name="main_image" value="{{ forloop.counter0 }}" {% if img.is_main %}checked{% endif %}/> Main
+                        <button type="button" class="btn-add-image" onclick="addImage()">+</button>
+                        <button type="button" class="btn-remove-image">-</button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="image-group" data-existing="{{ img.id }}">
+                    <input type="file" name="images[]" accept="image/*" onchange="previewImage(this)" />
+                    <img src="{{ img.image.url }}" class="preview" style="max-width:100px; margin-top:5px;" />
+                    <input type="radio" name="main_image" value="{{ forloop.counter0 }}" {% if img.is_main %}checked{% endif %}/> Main
+                    <button type="button" class="btn-add-image">+</button>
+                    <button type="button" class="btn-remove-image">-</button>
+                </div>
 
-        <!-- Subcategories -->
-        <label for="subcategories">Subcategories:</label>
-        <select id="subcategories" multiple>
-            <option value="">-- Select a category first --</option>
-        </select>
-        <div id="selected-subcategories" class="selected-tags"></div>
-
-        <!-- Product Images -->
-        <label>Product Images:</label>
-        <div id="images-container">
-            <div class="image-group">
-                <input type="file" name="images[]" accept="image/*" onchange="previewImage(this)" required />
-                <img class="preview" style="display:none; max-width:100px; margin-top:5px;" />
-                <input type="radio" name="main_image" value="0" checked /> Main
-                <button type="button" onclick="addImage()">+</button>
+                {% endif %}
             </div>
-        </div>
+        </label>
 
         <!-- Description -->
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="4" required></textarea>
+        <label>
+            Description:
+            <textarea name="description" rows="4" required>{% if product %}{{ product.description }}{% endif %}</textarea>
+        </label>
 
-        <!-- Submit -->
-        <input type="submit" value="Add Product" />
+        <!-- Submit Button -->
+        <input type="submit" value="{% if product %}Update Product{% else %}Add Product{% endif %}" />
     </form>
 </div>
 
-<!-- Inject all categories with subcategories as JSON for JS -->
 <script>
-    // Format: [{id: 1, name: "Cake", subcategories: [{id: 2, name: "Sugar Cake"}, ...]}, ...]
     window.allCategories = {{ categories_json|safe }};
+    window.preSelectedSubcategories = {{ pre_selected_subcategories|safe }};
 </script>
 
 <script src="{% static 'js/add_product.js' %}" defer></script>
-
 {% endblock %}
