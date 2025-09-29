@@ -257,12 +257,29 @@ def add_category(request):
     categories = BakeryCategory.objects.all()
     return render(request, "admin/add_category.html", {"categories": categories})
 
-
 # ----------------------------
 # Add to Cart
 # ----------------------------
 
 @login_required
+def add_to_cart(request, product_id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=product_id)
+        cart = request.session.get("cart", {})
+        pid_str = str(product_id)
+        if pid_str not in cart:
+            cart[pid_str] = {
+                "name": product.name,
+                "quantity": 1,
+                "price": float(product.price),
+            }
+        else:
+            cart[pid_str]["quantity"] += 1
+        request.session["cart"] = cart
+        request.session.modified = True
+        return JsonResponse({"success": True, "cart": cart})
+    return JsonResponse({"success": False, "error": "Invalid request method."}, status=400)
+
 def add_cart(request):
     try:
         if request.method == "POST":
@@ -321,7 +338,7 @@ def add_cart(request):
     except Exception as e:
         traceback.print_exc()
         return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)
-    
+ 
 # ----------------------------
 # Checkout                    
 # ----------------------------
@@ -333,6 +350,7 @@ def checkout_view(request):
 # ----------------------------
 # Cart Items (for header display)
 # ----------------------------
+
 @login_required
 def cart_items(request):
     cart = request.session.get('cart', {})
@@ -349,9 +367,7 @@ def cart_items(request):
 
 @login_required
 def add_to_cart(request, product_id):
-    """
-    Add a product to session cart. If it already exists, increment quantity.
-    """
+
     if request.method == "POST":
         product = get_object_or_404(Product, id=product_id)
         cart = request.session.get("cart", {})
@@ -373,14 +389,13 @@ def add_to_cart(request, product_id):
 
     return JsonResponse({"success": False, "error": "Invalid request method."}, status=400)
 
-
 # ----------------------------
 # Contact & About
 # ----------------------------
+
 def contact(request):
     categories = BakeryCategory.objects.all()
     return render(request, "contact.html", {"categories": categories})
-
 
 def about_us(request):
     categories = BakeryCategory.objects.all()
@@ -396,7 +411,6 @@ def about_us(request):
             return JsonResponse({"success": False, "message": "Message too long."})
     return render(request, 'about_us.html', {'categories': categories, 'success': False})
 
-
 def contact_detail(request):
     contacts = ContactForm.objects.values("id", "name", "email", "phone", "message", "submitted_at", "created_at", "updated_at").order_by("-submitted_at")
     return render(request, 'admin/contact_details.html', {"contacts": contacts})
@@ -404,12 +418,14 @@ def contact_detail(request):
 # ----------------------------
 # Payment
 # ----------------------------
+
 def payment(request):
     return render(request, 'payment.html')
 
 # ----------------------------
 # Pagination Helper
 # ----------------------------
+
 def get_page_range(paginator, current_page, max_pages=5):
     total_pages = paginator.num_pages
     if total_pages <= max_pages:
@@ -429,10 +445,10 @@ def get_page_range(paginator, current_page, max_pages=5):
     page_range.append(total_pages)
     return page_range
 
-
 # ----------------------------
 # Product Suggestions
 # ----------------------------
+
 def product_suggestions(request):
     query = request.GET.get('q', '')
     suggestions = []
@@ -450,7 +466,6 @@ def product_suggestions(request):
             })
 
     return JsonResponse({'results': suggestions})
-
 
 def all_payment(request):
     return render(request, 'admin/all_payment.html')
